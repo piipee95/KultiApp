@@ -65,3 +65,7 @@ las funciones antiguas. Ver `docs/versiones/V5_2_3.md`.
 - Coherencia comprobada con los datos reales: el stock de cada material y producto coincide con la suma de su
   historial, las reservas con los pedidos reservados y lo consumido por cada pedido con sus movimientos.
 - Índices agregados para las relaciones de `print_failures`.
+
+## V5.4.0 — Desgaste por hora
+
+Migración aplicada `kultiapp_v540_hourly_wear`, referencia `docs/migraciones/SCHEMA_V54_0.sql`. Tarifa por impresora en workspace_resources (100 CLP/h iniciales) y copia por impresión en print_jobs (0 para datos anteriores). La función save_product_bundle_v5 guarda la tarifa; product_cost_summary suma el desgaste redondeado por impresión. Función/vista SECURITY INVOKER, políticas RLS y ACL de ejecución conservadas. Verificación transaccional authenticated con ROLLBACK aprobada.
