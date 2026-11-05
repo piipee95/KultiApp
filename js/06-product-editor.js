@@ -79,6 +79,7 @@ function collect() {
     filament_cost: n(el.querySelector('.pf').value),
     electricity_cost: n(el.querySelector('.pe').value),
     other_print_cost: n(el.querySelector('.po').value),
+    wear_rate_per_hour: Math.min(1000000, Math.max(0, n(el.querySelector('.wearRate')?.value))),
     notes: el.querySelector('.pn').value.trim()
   }));
   p.prints.forEach((x, i) => {
@@ -101,9 +102,30 @@ function collect() {
   }));
   return p;
 }
+function printWearCost(x) {
+  const hours = Math.max(0, Math.trunc(n(x.hours))),
+    minutes = Math.min(59, Math.max(0, Math.trunc(n(x.minutes)))),
+    rate = Math.min(1000000, Math.max(0, n(x.wear_rate_per_hour)));
+  return Math.round((hours + minutes / 60) * rate);
+}
+function updateWearDisplay() {
+  qa('.print-card').forEach((el, i) => {
+    const output = el.querySelector('.wearAmount');
+    if (output) output.textContent = clp(printWearCost(S.product.prints[i]));
+  });
+  const automatic = (S.product.prints || []).reduce((sum, x) => sum + printWearCost(x), 0);
+  const manual = (S.product.additionalCosts || []).some(x => /desgaste/i.test(x.name) && n(x.amount) > 0);
+  q('#wearWarning')?.remove();
+  if (automatic > 0 && manual) {
+    const warning = document.createElement('p');
+    warning.id = 'wearWarning'; warning.className = 'notice';
+    warning.textContent = 'También hay desgaste manual en Costos. Revisa ambos importes para no contar el mismo gasto dos veces.';
+    q('#draftStatus')?.parentElement.append(warning);
+  }
+}
 function totals(p = S.product) {
   const pc = (p.prints || []).reduce(
-      (s, x) => s + n(x.filament_cost) + n(x.electricity_cost) + n(x.other_print_cost),
+      (s, x) => s + n(x.filament_cost) + n(x.electricity_cost) + n(x.other_print_cost) + printWearCost(x),
       0
     ),
     dc =
@@ -294,6 +316,7 @@ function product() {
   setupInventoryProduct();
   setupEditorLayout();
   common();
+  updateWearDisplay();
   bindProduct();
 }
 function bindProduct() {
@@ -324,6 +347,7 @@ function bindProduct() {
       filament_cost: 0,
       electricity_cost: 0,
       other_print_cost: 0,
+      wear_rate_per_hour: 100,
       notes: ''
     });
     render();
@@ -419,6 +443,7 @@ function refresh() {
   q('#quickPrice').textContent = clp(t.rounded);
   q('#quickCost').textContent = clp(t.unit);
   updatePriceHero();
+  updateWearDisplay();
   q('#sc').innerHTML = scenarios(S.product.target_margin);
   updatePriceStatus();
   updateMaterialStatus();
@@ -990,6 +1015,11 @@ function setupSellingPrice() {
       (p.power_kw == null ? '' : n(p.power_kw)) +
       '"></div>';
     el.querySelector('.print-advanced').append(extras);
+    const wear = document.createElement('div');
+    wear.className = 'wear-cost';
+    wear.innerHTML = '<div class="field"><label>Desgaste por uso CLP/h</label><input class="wearRate live" type="number" min="0" max="1000000" step="0.01" value="' +
+      n(p.wear_rate_per_hour) + '"><span class="small muted">Horas de esta impresión × tarifa. Cero desactiva el cobro.</span></div><div><span class="small muted">Desgaste de esta impresión</span><b class="wearAmount num">' + clp(printWearCost(p)) + '</b></div>';
+    chooser.after(wear);
     const match = activeResources('printer').find(
       r => r.name === p.printer_name && n(r.power_kw) === n(p.power_kw)
     );
@@ -1123,6 +1153,7 @@ function bindEditorOrders() {
           resource = S.resources.find(r => r.id === select.value);
         el.querySelector('.printerLabel').value = resource?.name || '';
         el.querySelector('.printPower').value = resource?.power_kw ?? '';
+        el.querySelector('.wearRate').value = resource ? n(resource.wear_rate_per_hour) : 100;
         calcPrintCosts(el);
       })
   );

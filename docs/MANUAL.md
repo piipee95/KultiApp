@@ -153,3 +153,7 @@ En pantallas anchas, el costo, precio final y Guardar cambios permanecen a la de
 ## Menús superiores (V5.3.2)
 
 La campana muestra una burbuja con los pendientes nuevos para este dispositivo. Abrir el desplegable los marca como vistos; siguen pendientes hasta que se resuelva la operación correspondiente. El engranaje abre Configuración. El nombre y avatar inferiores llevan a Mi perfil. Ambos menús cierran con Escape o al pulsar fuera. Los vistos no se sincronizan entre dispositivos.
+
+## Desgaste por hora — V5.4.0
+
+En la ficha de impresora se define Desgaste por uso CLP/h. En cada impresión se ve y puede ajustar la tarifa y el costo calculado. Cinco horas y treinta minutos a $100/h suman $550 al lote. Cero desactiva el concepto; las impresiones antiguas parten en cero. Si ya hay desgaste manual, revisar la advertencia antes de usar ambos importes.

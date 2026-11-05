@@ -6128,3 +6128,6 @@ button.sheet-user > svg {
   .products-studio .view-tabs .btn { flex: 1; min-width: 0; padding-inline: 6px; gap: 4px; font-size: 12px; }
   .products-studio .toolbar select { min-width: 0; max-width: 100%; }
 }
+.wear-cost { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px; margin: 12px 0; border: 1px solid var(--line); border-radius: var(--r); background: var(--raised); }
+.wear-cost .wearAmount { display: block; margin-top: 6px; font-size: 20px; }
+@media (max-width: 599px) { .wear-cost { grid-template-columns: 1fr; gap: 8px; } }

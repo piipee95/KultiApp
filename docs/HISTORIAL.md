@@ -1,3 +1,7 @@
+# V5.4.0 — Desgaste por hora
+
+Costo por desgaste/hora con tarifa por impresora y copia por impresión; pruebas locales aprobadas. Migración aplicada y verificada sin alterar costos históricos. Ver `versiones/V5_4_0.md`.
+
 # V5.3.2 — Menús anclados y avisos nuevos
 
 Campana con burbuja de nuevos, Configuración desplegable, perfil único abajo y logo centrado. Ajuste responsive a 320 px. Ver `versiones/V5_3_2.md`.
