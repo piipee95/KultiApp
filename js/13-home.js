@@ -1,28 +1,7 @@
 'use strict';
-// Inicio: saludo, accesos rápidos, cifras del mes y pendientes (recordatorios).
-// Sales and estimated profit for orders created in a given month (canceled excluded).
-function monthTotals(year, month) {
-  const list = S.orders.filter(o => {
-    if (o.status === 'canceled' || o.kind === 'stock' || !o.created_at) return false;
-    const d = new Date(o.created_at);
-    return d.getFullYear() === year && d.getMonth() === month;
-  });
-  let sales = 0,
-    profit = 0,
-    net = 0;
-  for (const o of list) {
-    const t = orderNumbers(o);
-    sales += t.sales;
-    net += t.net;
-    profit += t.actualProfit ?? t.estimatedProfit;
-  }
-  return { count: list.length, sales, profit, margin: net > 0 ? profit / net : null };
-}
+// Inicio: saludo, accesos rápidos, centro de operaciones (15-operations.js), existencias y pendientes (recordatorios).
 function homeView() {
   const now = new Date(),
-    cur = monthTotals(now.getFullYear(), now.getMonth()),
-    prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1),
-    prev = monthTotals(prevDate.getFullYear(), prevDate.getMonth()),
     open = S.orders.filter(orderIsOpen),
     late = open.filter(orderIsLate),
     low = inventoryLow(),
@@ -34,7 +13,6 @@ function homeView() {
       .filter(r => r.active && r.counted && n(r.min_stock) > 0)
       .sort((a, b) => stockLevel(a).ratio - stockLevel(b).ratio)
       .slice(0, 5),
-    delta = prev.sales > 0 ? (cur.sales - prev.sales) / prev.sales : null,
     weekday = now.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }),
     dueOrders = receivables(),
     dueTotal = dueOrders.reduce((s, o) => s + orderBalance(o).due, 0);
@@ -50,17 +28,6 @@ function homeView() {
     '</div><div class="kpi-f">' +
     foot +
     '</div></div>';
-  const deltaFoot =
-    delta == null
-      ? '<span class="muted">' + cur.count + (cur.count === 1 ? ' pedido' : ' pedidos') + ' este mes</span>'
-      : '<span class="' +
-        (delta >= 0 ? 'up' : 'down') +
-        '">' +
-        icon(delta >= 0 ? 'trending-up' : 'trending-down') +
-        Math.abs(Math.round(delta * 100)) +
-        '% vs ' +
-        MONTHS[prevDate.getMonth()] +
-        '</span>';
   const deliveries = upcoming.length
     ? '<table class="data-table"><thead><tr><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th class="r">Total</th></tr></thead><tbody>' +
       upcoming
@@ -155,7 +122,15 @@ function homeView() {
     '<main class="shell home">' +
     (S.err ? '<div class="error">' + esc(S.err) + '</div>' : '') +
     homeHero(weekday, open, late, dueTotal) +
+    moneyView() +
     remindersPanel() +
+    '<details class="home-more"' +
+    (S.homeMoreOpen ? ' open' : '') +
+    '><summary>' +
+    icon('chart-column') +
+    'Ver más detalle: gráfico, más vendidos y actividad</summary>' +
+    operationsView({ bar: false }) +
+    '</details>' +
     '<div class="kpis home-kpis">' +
     kpi(
       'Pedidos en curso',
@@ -195,28 +170,6 @@ function homeView() {
       ' kpi-priority'
     ) +
     kpi(
-      'Ventas de ' + MONTHS[now.getMonth()],
-      'wallet',
-      '<span class="full">' +
-        clp(cur.sales) +
-        '</span><span class="short">' +
-        clpShort(cur.sales) +
-        '</span>',
-      deltaFoot
-    ) +
-    kpi(
-      'Utilidad estimada',
-      'trending-up',
-      '<span class="full">' +
-        clp(cur.profit) +
-        '</span><span class="short">' +
-        clpShort(cur.profit) +
-        '</span>',
-      '<span class="muted">' +
-        (cur.margin == null ? 'Sin ventas este mes' : 'Margen ' + pct(cur.margin)) +
-        '</span>'
-    ) +
-    kpi(
       'Productos en stock',
       'package',
       '<span class="full">' +
@@ -246,6 +199,8 @@ function homeView() {
     stock +
     '</section></div></main>';
   common();
+  bindOperations();
+  bindMoney();
   q('#homeNew')?.addEventListener('click', showCreateMenu);
   qa('[data-quick-action]').forEach(
     b =>
@@ -282,7 +237,7 @@ function homeHero(weekday, open, late, dueTotal) {
     parts = [
       open.length
         ? open.length + (open.length === 1 ? ' pedido en curso' : ' pedidos en curso')
-        : 'ningún pedido en curso',
+        : '0 pedidos en curso',
       today ? today + (today === 1 ? ' para entregar hoy' : ' para entregar hoy') : '',
       late.length ? late.length + (late.length === 1 ? ' atrasado' : ' atrasados') : '',
       dueTotal > 0 ? clp(dueTotal) + ' por cobrar' : ''
@@ -551,7 +506,10 @@ function dailyNotice(list) {
 // Only device preferences are stored: hashed reminder signatures, scoped to user/workspace.
 function notificationSeenKey() {
   return S.session?.user?.id && S.workspace?.id
-    ? 'kultiapp_notice_seen:' + encodeURIComponent(S.session.user.id) + ':' + encodeURIComponent(S.workspace.id)
+    ? 'kultiapp_notice_seen:' +
+        encodeURIComponent(S.session.user.id) +
+        ':' +
+        encodeURIComponent(S.workspace.id)
     : null;
 }
 function notificationSignature(r) {
@@ -573,22 +531,51 @@ function unseenNotifications(list = reminders()) {
 function markNotificationsSeen() {
   const key = notificationSeenKey();
   if (key) {
-    try { localStorage.setItem(key, JSON.stringify(reminders().map(notificationSignature))); } catch {}
+    try {
+      localStorage.setItem(key, JSON.stringify(reminders().map(notificationSignature)));
+    } catch {}
   }
   q('.notification-badge')?.remove();
   q('[data-notifications]')?.setAttribute('aria-label', 'Notificaciones y pendientes');
 }
 function notificationDropdown() {
-  const list = reminders(), unread = unseenNotifications(list);
-  return '<details class="utility-dropdown" id="notificationsMenu"><summary class="btn icon-btn utility-summary" data-notifications aria-label="Notificaciones y pendientes' +
-    (unread ? ': ' + unread + ' nuevos' : '') + '" aria-expanded="false">' + icon('bell') +
-    (unread ? '<span class="notification-badge" aria-hidden="true">' + (unread > 99 ? '99+' : unread) + '</span>' : '') +
+  const list = reminders(),
+    unread = unseenNotifications(list);
+  return (
+    '<details class="utility-dropdown" id="notificationsMenu"><summary class="btn icon-btn utility-summary" data-notifications aria-label="Notificaciones y pendientes' +
+    (unread ? ': ' + unread + ' nuevos' : '') +
+    '" aria-expanded="false">' +
+    icon('bell') +
+    (unread
+      ? '<span class="notification-badge" aria-hidden="true">' + (unread > 99 ? '99+' : unread) + '</span>'
+      : '') +
     '</summary><section class="utility-pop notifications-pop" aria-label="Notificaciones y pendientes"><div class="utility-heading"><h2>Notificaciones</h2><button type="button" class="btn icon-btn" data-close-utility aria-label="Cerrar notificaciones">' +
-    icon('x') + '</button></div><p class="small muted">Pendientes del taller · Visto en este dispositivo</p>' +
-    (list.length ? '<div class="reminders">' + list.map((r, i) =>
-      '<button type="button" class="list-row reminder" data-notice="' + i + '"><span class="rem-ic ' + r.tone + '">' +
-      icon(r.icon) + '</span><span class="lr-main"><b>' + esc(r.text) + '</b><span>' + esc(r.sub) +
-      '</span></span>' + icon('chevron-right') + '</button>').join('') + '</div>' :
-      '<div class="utility-empty">' + icon('circle-check') + '<b>Todo al día</b><span>No hay pendientes urgentes.</span></div>') +
-    '</section></details>';
+    icon('x') +
+    '</button></div><p class="small muted">Pendientes del taller · Visto en este dispositivo</p>' +
+    (list.length
+      ? '<div class="reminders">' +
+        list
+          .map(
+            (r, i) =>
+              '<button type="button" class="list-row reminder" data-notice="' +
+              i +
+              '"><span class="rem-ic ' +
+              r.tone +
+              '">' +
+              icon(r.icon) +
+              '</span><span class="lr-main"><b>' +
+              esc(r.text) +
+              '</b><span>' +
+              esc(r.sub) +
+              '</span></span>' +
+              icon('chevron-right') +
+              '</button>'
+          )
+          .join('') +
+        '</div>'
+      : '<div class="utility-empty">' +
+        icon('circle-check') +
+        '<b>Todo al día</b><span>No hay pendientes urgentes.</span></div>') +
+    '</section></details>'
+  );
 }

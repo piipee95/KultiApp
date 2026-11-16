@@ -26,7 +26,13 @@ function showResourceForm(resource) {
             'number',
             'min="0" max="100" step="0.01" required'
           ) +
-          fieldHtml('Desgaste por uso CLP/h', 'resourceWear', resource.wear_rate_per_hour ?? (resource.id ? 0 : 100), 'number', 'min="0" max="1000000" step="0.01" required') +
+          fieldHtml(
+            'Desgaste por uso CLP/h',
+            'resourceWear',
+            resource.wear_rate_per_hour ?? (resource.id ? 0 : 100),
+            'number',
+            'min="0" max="1000000" step="0.01" required'
+          ) +
           fieldHtml(
             'Mantención cada (horas de impresión)',
             'resourceMaint',
@@ -109,7 +115,9 @@ function resourcesView() {
               esc(r.name) +
               '</b><span>' +
               n(r.power_kw).toLocaleString('es-CL') +
-              ' kW · Desgaste ' + clp(n(r.wear_rate_per_hour)) + '/h</span>' +
+              ' kW · Desgaste ' +
+              clp(n(r.wear_rate_per_hour)) +
+              '/h</span>' +
               printerUsageMarkup(r) +
               (canEdit() && r.active
                 ? '<span class="printer-actions"><button class="btn btn-ghost btn-sm" type="button" data-printer-hours="' +

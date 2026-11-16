@@ -20,12 +20,30 @@ computador, y se puede instalar como app.
 
 ## Inicio
 
-Saludo, accesos rápidos (Vender, Nuevo pedido, Fabricar, Cotizar), las cifras del mes (ventas, utilidad,
-pedidos), **Productos en stock** y **Materia prima** (dinero invertido), **Por cobrar**, próximas entregas,
-**Stock y mínimos** (disponible frente al mínimo definido) y **Pendientes**: atrasos, entregas de hoy y mañana, pedidos listos, saldos por cobrar,
-cotizaciones por vencer, mantenciones y el conteo de inventario cuando toca.
-Las cifras de pedidos en curso, por cobrar y materiales bajo mínimo aparecen primero; los otros
-indicadores permanecen en la misma pantalla.
+Saludo, accesos rápidos (Vender, Nuevo pedido, Fabricar, Cotizar) y **Pendientes**: atrasos, entregas de hoy y
+mañana, pedidos listos, saldos por cobrar, cotizaciones por vencer, mantenciones y el conteo de inventario cuando toca.
+
+**Menú.** A la vista: Inicio, Productos, Pedidos, Clientes, Finanzas e Inventario. Bajo **Más**: Cotizaciones, Archivos,
+Kit de marca, Reportes e Impresoras.
+
+**Mi plata.** Lo primero del Inicio: elige el periodo y verás, con palabras simples, lo que **vendiste**, lo que **te
+pagaron**, lo que **te deben** (hoy), lo que **gastaste** y lo que **te queda** (pagos recibidos menos gastos anotados).
+**Mi cuota**: anota una cuota con su monto y vencimiento y te dice cuánto te falta con lo que te han pagado; «Ya la pagué»
+la registra como gasto y la quita. La cuota se guarda en el dispositivo.
+
+**Más detalle** (plegado). Elige el periodo (Hoy, Semana, Mes, Año o Rango de fechas):
+
+- **Ventas**: pedidos de clientes creados en el periodo, con IVA. **Cobros**: pagos recibidos en el periodo.
+  **Costo de fabricación**: el real del pedido si ya lo registraste, si no el estimado. **Utilidad**: real, estimada o
+  mezcla (se indica), con **margen** (sobre la venta neta) y **recargo** (sobre el costo).
+- Cada cifra muestra la variación contra el periodo anterior de igual duración y abre Reportes o Finanzas al tocarla.
+- **Ventas y cobros**: gráfico por día o por mes. **Pedidos y fabricación**: pendientes, en fabricación, listos para
+  entregar, enviados y atrasados; cada recuadro abre la lista filtrada. **Más vendidos** y **Actividad reciente**.
+- Si el rango es anterior a los 12 meses cargados, se avisa; Reportes trae los meses anteriores.
+
+Más abajo, las cifras de **pedidos en curso**, **por cobrar** y **materiales bajo mínimo** aparecen primero; siguen
+**Productos en stock** y **Materia prima** (dinero invertido), próximas entregas y **Stock y mínimos** (disponible frente
+al mínimo definido). En escritorio, el botón de arriba del menú lateral lo pliega a solo íconos (se recuerda por dispositivo).
 
 ## Productos
 

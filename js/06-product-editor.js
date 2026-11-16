@@ -118,8 +118,10 @@ function updateWearDisplay() {
   q('#wearWarning')?.remove();
   if (automatic > 0 && manual) {
     const warning = document.createElement('p');
-    warning.id = 'wearWarning'; warning.className = 'notice';
-    warning.textContent = 'También hay desgaste manual en Costos. Revisa ambos importes para no contar el mismo gasto dos veces.';
+    warning.id = 'wearWarning';
+    warning.className = 'notice';
+    warning.textContent =
+      'También hay desgaste manual en Costos. Revisa ambos importes para no contar el mismo gasto dos veces.';
     q('#draftStatus')?.parentElement.append(warning);
   }
 }
@@ -1017,8 +1019,12 @@ function setupSellingPrice() {
     el.querySelector('.print-advanced').append(extras);
     const wear = document.createElement('div');
     wear.className = 'wear-cost';
-    wear.innerHTML = '<div class="field"><label>Desgaste por uso CLP/h</label><input class="wearRate live" type="number" min="0" max="1000000" step="0.01" value="' +
-      n(p.wear_rate_per_hour) + '"><span class="small muted">Horas de esta impresión × tarifa. Cero desactiva el cobro.</span></div><div><span class="small muted">Desgaste de esta impresión</span><b class="wearAmount num">' + clp(printWearCost(p)) + '</b></div>';
+    wear.innerHTML =
+      '<div class="field"><label>Desgaste por uso CLP/h</label><input class="wearRate live" type="number" min="0" max="1000000" step="0.01" value="' +
+      n(p.wear_rate_per_hour) +
+      '"><span class="small muted">Horas de esta impresión × tarifa. Cero desactiva el cobro.</span></div><div><span class="small muted">Desgaste de esta impresión</span><b class="wearAmount num">' +
+      clp(printWearCost(p)) +
+      '</b></div>';
     chooser.after(wear);
     const match = activeResources('printer').find(
       r => r.name === p.printer_name && n(r.power_kw) === n(p.power_kw)

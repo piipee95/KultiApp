@@ -572,16 +572,56 @@ function registerServiceWorker() {
 const NAV_ITEMS = [
   { mode: 'home', label: 'Inicio', icon: 'house' },
   { mode: 'dashboard', label: 'Productos', icon: 'package' },
-  { mode: 'quotes', label: 'Cotizaciones', icon: 'file-text' },
+  { mode: 'quotes', label: 'Cotizaciones', icon: 'file-text', more: true },
   { mode: 'production', label: 'Pedidos', icon: 'clipboard-list' },
   { mode: 'customers', label: 'Clientes', icon: 'users' },
-  { mode: 'files', label: 'Archivos', icon: 'image' },
-  { mode: 'brand', label: 'Kit de marca', icon: 'palette' },
-  { mode: 'reports', label: 'Reportes', icon: 'chart-column' },
+  { mode: 'files', label: 'Archivos', icon: 'image', more: true },
+  { mode: 'brand', label: 'Kit de marca', icon: 'palette', more: true },
+  { mode: 'reports', label: 'Reportes', icon: 'chart-column', more: true },
   { mode: 'finance', label: 'Finanzas', icon: 'wallet' },
   { mode: 'inventory', label: 'Inventario', icon: 'boxes' },
-  { mode: 'resources', label: 'Impresoras', icon: 'printer' }
+  { mode: 'resources', label: 'Impresoras', icon: 'printer', more: true }
 ];
+// The sidebar shows what is used every day; the rest sits under «Más» (nothing is removed).
+const navButton = item => {
+  const on = navActive(item.mode),
+    count = navCount(item.mode);
+  return (
+    '<button type="button" class="nav-item' +
+    (on ? ' active' : '') +
+    '" data-app-mode="' +
+    item.mode +
+    '" title="' +
+    item.label +
+    '"' +
+    (on ? ' aria-current="page"' : '') +
+    '>' +
+    icon(item.icon) +
+    '<span>' +
+    item.label +
+    '</span>' +
+    (count ? '<span class="nav-count">' + count + '</span>' : '') +
+    '</button>'
+  );
+};
+function sideNavHtml() {
+  const rest = NAV_ITEMS.filter(i => i.more),
+    open = sideCollapsed() || S.navMoreOpen || rest.some(i => navActive(i.mode));
+  return (
+    NAV_ITEMS.filter(i => !i.more)
+      .map(navButton)
+      .join('') +
+    '<details class="nav-more"' +
+    (open ? ' open' : '') +
+    '><summary class="nav-more-summary">' +
+    icon('layout-grid') +
+    '<span>Más</span>' +
+    icon('chevron-down') +
+    '</summary><div class="nav-more-list">' +
+    rest.map(navButton).join('') +
+    '</div></details>'
+  );
+}
 const PAGE_TITLES = {
   home: 'Inicio',
   dashboard: 'Productos',
@@ -639,11 +679,18 @@ function header(title = PAGE_TITLES[S.mode] || 'KultiApp', actions = '', { back 
         icon('search') +
         '</button>') +
     actions +
-    '<div class="header-utilities">' + notificationDropdown() +
+    '<div class="header-utilities">' +
+    notificationDropdown() +
     '<details class="utility-dropdown" id="accountMenu"><summary class="btn icon-btn utility-summary" aria-label="Configuración" aria-expanded="false">' +
-    icon('settings') + '</summary><section class="utility-pop settings-pop" aria-label="Configuración"><div class="utility-heading"><h2>Configuración</h2><button type="button" class="btn icon-btn" data-close-utility aria-label="Cerrar configuración">' +
-    icon('x') + '</button></div><p class="small muted">Apariencia en este dispositivo</p>' + themeSwitch() +
-    '<div id="settingsActions">' + accountMenuItems() + '</div><button type="button" class="menu-item" id="settingsLogout">' + icon('log-out') +
+    icon('settings') +
+    '</summary><section class="utility-pop settings-pop" aria-label="Configuración"><div class="utility-heading"><h2>Configuración</h2><button type="button" class="btn icon-btn" data-close-utility aria-label="Cerrar configuración">' +
+    icon('x') +
+    '</button></div><p class="small muted">Apariencia en este dispositivo</p>' +
+    themeSwitch() +
+    '<div id="settingsActions">' +
+    accountMenuItems() +
+    '</div><button type="button" class="menu-item" id="settingsLogout">' +
+    icon('log-out') +
     'Cerrar sesión</button></section></details></div>' +
     '</div></header>'
   );
@@ -660,45 +707,47 @@ function accountMenuItems() {
       : '')
   );
 }
+// Desktop sidebar: full or icons only, remembered on this device.
+function sideCollapsed() {
+  if (S.sideCollapsed == null) {
+    try {
+      S.sideCollapsed = localStorage.getItem('kultiapp_side') === '1';
+    } catch {
+      S.sideCollapsed = false;
+    }
+  }
+  return S.sideCollapsed;
+}
 function mountShell() {
   root.classList.add('has-shell');
   root.classList.toggle('is-detail', S.mode === 'product');
   qa('.sidebar,.tabbar').forEach(el => el.remove());
   const side = document.createElement('aside');
   side.className = 'sidebar';
+  root.classList.toggle('side-collapsed', sideCollapsed());
   side.innerHTML =
-    '<img class="side-logo" src="' +
+    '<div class="side-head"><img class="side-logo" src="' +
     LOGO_SRC +
-    '" alt="Kultiverso Pop">' +
+    '" alt="Kultiverso Pop"><button type="button" class="side-toggle" id="sideToggle" aria-label="' +
+    (sideCollapsed() ? 'Mostrar el menú' : 'Plegar el menú') +
+    '" aria-expanded="' +
+    !sideCollapsed() +
+    '" title="' +
+    (sideCollapsed() ? 'Mostrar el menú' : 'Plegar el menú') +
+    '">' +
+    icon('panel-left') +
+    '</button></div>' +
     (canEdit()
-      ? '<button type="button" class="btn btn-primary side-new" data-open-create>' +
+      ? '<button type="button" class="btn btn-primary side-new" data-open-create title="Nuevo">' +
         icon('plus') +
-        'Nuevo</button>'
+        '<span>Nuevo</span></button>'
       : '') +
     '<button type="button" class="side-search" data-open-search>' +
     icon('search') +
     '<span>Buscar</span><kbd>' +
     (/mac|iphone|ipad/i.test(navigator.platform || navigator.userAgent) ? '⌘K' : 'Ctrl K') +
     '</kbd></button><nav class="side-nav app-nav" aria-label="Navegación principal">' +
-    NAV_ITEMS.map(item => {
-      const on = navActive(item.mode),
-        count = navCount(item.mode);
-      return (
-        '<button type="button" class="nav-item' +
-        (on ? ' active' : '') +
-        '" data-app-mode="' +
-        item.mode +
-        '"' +
-        (on ? ' aria-current="page"' : '') +
-        '>' +
-        icon(item.icon) +
-        '<span>' +
-        item.label +
-        '</span>' +
-        (count ? '<span class="nav-count">' + count + '</span>' : '') +
-        '</button>'
-      );
-    }).join('') +
+    sideNavHtml() +
     '</nav><div class="side-user"><button type="button" class="user-chip" id="accountButton" aria-label="Mi perfil">' +
     userAvatar() +
     '<span class="user-text"><b>' +
@@ -709,6 +758,18 @@ function mountShell() {
     icon('chevron-right') +
     '</button><p class="powered">Powered by <b>ELARA</b></p></div>';
   root.prepend(side);
+  const more = q('.nav-more');
+  if (more) more.ontoggle = () => !sideCollapsed() && (S.navMoreOpen = more.open);
+  q('#sideToggle').onclick = () => {
+    S.sideCollapsed = !sideCollapsed();
+    try {
+      localStorage.setItem('kultiapp_side', S.sideCollapsed ? '1' : '0');
+    } catch {}
+    root.classList.toggle('side-collapsed', S.sideCollapsed);
+    q('#sideToggle').setAttribute('aria-expanded', String(!S.sideCollapsed));
+    q('#sideToggle').setAttribute('aria-label', S.sideCollapsed ? 'Mostrar el menú' : 'Plegar el menú');
+    q('#sideToggle').title = S.sideCollapsed ? 'Mostrar el menú' : 'Plegar el menú';
+  };
   loadAvatarUrl();
   const tabs = document.createElement('nav');
   tabs.className = 'tabbar';
@@ -842,7 +903,10 @@ function bindUtilityDropdowns() {
     };
     dropdown.querySelector('[data-close-utility]').onclick = () => closeUtilityDropdown(dropdown, true);
     dropdown.onkeydown = e => {
-      if (e.key === 'Escape') { e.preventDefault(); closeUtilityDropdown(dropdown, true); }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeUtilityDropdown(dropdown, true);
+      }
     };
   });
   const notices = reminders();
