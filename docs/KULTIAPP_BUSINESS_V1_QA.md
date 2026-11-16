@@ -1,6 +1,6 @@
 # KultiApp Business V1 · QA
 
-Registro de lo verificado en esta intervención (5.3), separando lo **verificado**, lo **verificado solo en local** y lo
+Registro de lo verificado en esta intervención (5.5), separando lo **verificado**, lo **verificado solo en local** y lo
 **no verificado**. Fecha: 16 de noviembre de 2026.
 
 ## 1. Verificado
@@ -8,7 +8,7 @@ Registro de lo verificado en esta intervención (5.3), separando lo **verificado
 | Prueba | Cómo | Resultado |
 |---|---|---|
 | Lint | `npm run lint` | 0 errores. |
-| Suites de la app | `npm test` (jsdom, backend simulado) | **42/42**: las 41 previas (3 se actualizaron porque `monthTotals` pasó a `opsTotals`, y una porque «Ventas» se movió de `.kpis` a `.ops-kpis`) + `inicio-centro-de-operaciones`. |
+| Suites de la app | `npm test` (jsdom, backend simulado) | **46/46** tras integrar `main` (5.4.0): las 45 de `main` + `inicio-centro-de-operaciones`. Se actualizaron 3 suites porque `monthTotals` pasó a `opsTotals` y una porque «Ventas» se movió de `.kpis` a `.ops-kpis`. |
 | Cifras entre pantallas | `recorrido-completo` | Ventas, utilidad real y por cobrar siguen coincidiendo en Inicio, Reportes, Finanzas, cliente y pedido. |
 | Centro de operaciones | `inicio-centro-de-operaciones` | Ver detalle abajo. |
 | Carga en navegador real | Capturas con Chromium (Playwright) a 1280 px y 390 px, con menú abierto y plegado | Sin errores de carga; diseño correcto en ambos anchos; corregidos dos detalles visuales (barras vacías y último recuadro). |
@@ -59,6 +59,6 @@ por defecto de Storage ni las extensiones).
 ## 4. Cómo repetirlo
 
 ```sh
-npm ci && npm run lint && npm test          # app: 42 suites
+npm ci && npm run lint && npm test          # app: 46 suites
 bash tests/db/run-local.sh                  # esquema propuesto en PostgreSQL local
 ```

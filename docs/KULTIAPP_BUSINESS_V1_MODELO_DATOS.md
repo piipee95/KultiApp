@@ -68,5 +68,5 @@ producción**.
 
 ## 6. Compatibilidad y retroceso
 
-Aditivo: no elimina ni reescribe datos y el cliente 5.3 no usa nada de esto. El retroceso borra solo lo agregado
+Aditivo: no elimina ni reescribe datos y el cliente 5.5 no usa nada de esto. El retroceso borra solo lo agregado
 (verificado: tras revertir, pedidos y productos originales quedan intactos).

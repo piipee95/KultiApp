@@ -3,11 +3,11 @@
 Prioridades de la primera intervención y estado real. **Implementado** = en el código y probado; **Preparado** = escrito
 y probado en entorno local, sin aplicar; **Pendiente** = sin hacer.
 
-## Primera intervención (5.3)
+## Primera intervención (5.5)
 
 | Prioridad | Entregable | Estado |
 |---|---|---|
-| P1 Auditoría y preservación | `KULTIAPP_BUSINESS_V1_AUDITORIA.md`; 41 suites previas y lint verificados antes de tocar código | **Implementado** |
+| P1 Auditoría y preservación | `KULTIAPP_BUSINESS_V1_AUDITORIA.md`; 41 suites previas y lint verificados antes de tocar código; `main` (5.4.0) integrado y reverificado al final | **Implementado** |
 | P2 Estructura y experiencia | Centro de operaciones en Inicio (periodo, ventas / cobros / costo / utilidad, variación, gráfico, estado de pedidos, más vendidos, actividad) | **Implementado** |
 | P2 Estructura y experiencia | Menú lateral plegable en escritorio | **Implementado** |
 | P2 Estructura y experiencia | Reorganizar toda la navegación en módulos | Pendiente (el menú actual de 11 secciones ya es consistente; se propone agruparlo en la fase 2) |
@@ -29,7 +29,7 @@ y probado en entorno local, sin aplicar; **Pendiente** = sin hacer.
 aditivo A2–A7 en una rama de base de datos, ensayar el relleno B con copia de los datos reales y recién entonces
 aplicarlo. *Salida*: tablas nuevas vacías o rellenas, cliente sin cambios, 42 suites verdes.
 
-**Fase 2 · Productos y catálogo.** SKU, categoría, subcategoría, tiempo de fabricación y modalidad en el editor y en
+**Fase 2 · Productos y catálogo.** (`save_product_bundle_v5` ya guarda el costo de desgaste por impresión desde 5.4.0; habrá que extenderla para los campos nuevos sin alterar su firma ni permisos.) SKU, categoría, subcategoría, tiempo de fabricación y modalidad en el editor y en
 la lista (con búsqueda y orden); variantes con stock por funciones; catálogo público con variantes.
 
 **Fase 3 · Pedidos de varios productos.** El pedido pasa a leer `order_items` (con respaldo en la fila antigua),

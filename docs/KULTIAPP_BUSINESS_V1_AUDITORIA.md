@@ -1,7 +1,10 @@
 # KultiApp Business V1 · Auditoría del proyecto
 
-Fecha: 16 de noviembre de 2026 · Punto de partida: `main` en el commit `64dfa6c` (KultiApp 5.2), rama de trabajo
-`claude/festive-gates-7xcuy2`, árbol limpio. Todo lo de este documento se comprobó en el repositorio, en la base de
+Fecha: 16 de noviembre de 2026 · Punto de partida: `main` en el commit `64dfa6c` (KultiApp 5.2). **Mientras se trabajaba, `main` avanzó a 5.4.0**
+(`ffe36f8`: claridad y paleta, galería de productos, estudio del editor, menús anclados y desgaste por hora, con dos cambios de
+base de datos aplicados por otras sesiones). Se integró `main` en la rama de trabajo `claude/festive-gates-7xcuy2`, se
+resolvieron los conflictos (Inicio, estilos, versión e historial) y se volvió a pasar todo; las tablas y columnas de este
+documento se leyeron de la base de producción **ya con 5.4.0 aplicado**. Todo lo de este documento se comprobó en el repositorio, en la base de
 datos de Supabase (solo lectura) y ejecutando las pruebas; lo que no se pudo comprobar se dice expresamente.
 
 ## 1. Estado real del sistema
@@ -15,7 +18,7 @@ datos de Supabase (solo lectura) y ejecutando las pruebas; lo que no se pudo com
 | Base de datos | Supabase (Postgres + Auth + Storage). 22 tablas en `public`, todas con RLS; 25 funciones en `private` (con `security definer` y `search_path` vacío) y 20 envoltorios en `public`; 21 triggers; 3 buckets privados. |
 | Git | Rama activa al día con `main`, sin cambios sin confirmar. Un PR por versión, fusionados por squash. |
 | CI | GitHub Actions ya existentes: `test.yml` (lint + pruebas), CodeQL (semanal y por PR) y gitleaks. Es el plan gratuito; no se agregó ninguno. |
-| Versión | 5.2 (5.3 con este trabajo). |
+| Versión | 5.4.0 en `main` (5.5 con este trabajo). |
 
 Datos reales (aproximados): 14 productos, 14 recursos de inventario, 7 pedidos, 56 movimientos de inventario,
 51 líneas de materiales de pedidos, 58 recursos de marca. Un solo taller con operación real. Existe un segundo
@@ -26,7 +29,7 @@ espacio también llamado «Kultiverso Pop», sin datos, cuyo propietario es el s
 | Validación | Resultado |
 |---|---|
 | `npm run lint` (ESLint) | 0 errores. |
-| `npm test` (jsdom con backend simulado) | 41/41 suites al comenzar; 42/42 con la suite nueva. |
+| `npm test` (jsdom con backend simulado) | 41/41 al comenzar sobre 5.2; **46/46** tras integrar 5.4.0 (4 suites nuevas de otras sesiones) y sumar la de este trabajo. |
 | Aviso de seguridad de Supabase | 1: protección de contraseñas filtradas desactivada. Es una función del plan pago; la app la cubre del lado del cliente al crear o cambiar contraseñas. |
 | Avisos de rendimiento | 1 real y 14 informativos. El real: la política `brand_assets_insert` evalúa `auth.uid()` por fila (se resuelve con `(select auth.uid())`); está en la propuesta SQL, **no aplicado**. Los 14 índices «sin uso» son esperables con tan pocos datos y no se tocan. |
 | Compilación | No existe (sitio estático). La carga de cada archivo se comprueba con las pruebas y con capturas en navegador real. |
@@ -38,7 +41,7 @@ Leyenda: **Sí** = existe y funciona; **Parcial** = existe con límites; **No** 
 
 | Módulo pedido | Estado | Evidencia y límites |
 |---|---|---|
-| Dashboard operativo | Parcial → **mejorado en 5.3** | Antes: tarjetas del mes y listas. Ahora: periodo (hoy, semana, mes, año, rango), ventas, cobros, costo y utilidad por separado, variación, gráfico, estado de pedidos, más vendidos y actividad (ver arquitectura). Faltan ventas «de la semana y el año» en simultáneo y comparación entre rangos arbitrarios (el rango libre compara con el tramo anterior de igual largo). |
+| Dashboard operativo | Parcial → **mejorado en 5.5** | Antes: tarjetas del mes y listas. Ahora: periodo (hoy, semana, mes, año, rango), ventas, cobros, costo y utilidad por separado, variación, gráfico, estado de pedidos, más vendidos y actividad (ver arquitectura). Faltan ventas «de la semana y el año» en simultáneo y comparación entre rangos arbitrarios (el rango libre compara con el tramo anterior de igual largo). |
 | Productos y catálogo | Parcial | Crear, editar, duplicar, archivar; foto; precio, costo y margen; stock terminado; catálogo público. **No hay** SKU, categorías, variantes, tiempo de fabricación por producto ni archivos de fabricación ni historial de cambios. |
 | Inventario | Sí (materia prima) / Parcial (terminados) | Materiales (filamento e insumos) con movimientos, reservas, mínimo, conteo, historial y deshacer; las funciones de inventario bloquean filas (`for update`) y validan antes de escribir (`inventory_apply_movement`, `inventory_resource_guard`); `inventory_consume` usa `request_key` para no duplicar consumos. **No verificado:** que exista una regla explícita contra el stock negativo con autorización; se comprobará con pruebas SQL antes de apoyarse en ella. Terminados: `stock_qty`/`stock_reserved` por producto y `product_stock_movements`, sin variantes. Resinas y repuestos se pueden registrar como insumos, sin tipo propio. |
 | Clientes | Sí | Ficha, historial, cotizaciones, pedidos, saldos, búsqueda. Sin CRM (previsto así). |

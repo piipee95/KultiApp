@@ -103,12 +103,12 @@ function homeView() {
         .join('')
     : '<div class="panel-empty">' +
       icon('boxes') +
-      '<b>Sin alertas de stock</b><span>' +
+      '<b>Sin materiales con mínimo definido</b><span>' +
       (uncounted.length
         ? uncounted.length +
           (uncounted.length === 1 ? ' material pendiente' : ' materiales pendientes') +
           ' de conteo inicial.'
-        : 'Define un stock mínimo en tus materiales para ver alertas aquí.') +
+        : 'Define un stock mínimo en tus materiales para comparar su disponibilidad aquí.') +
       '</span></div>';
   root.innerHTML =
     header(
@@ -124,7 +124,7 @@ function homeView() {
     homeHero(weekday, open, late, dueTotal) +
     remindersPanel() +
     operationsView() +
-    '<div class="kpis">' +
+    '<div class="kpis home-kpis">' +
     kpi(
       'Pedidos en curso',
       'clipboard-list',
@@ -135,10 +135,23 @@ function homeView() {
             late.length +
             (late.length === 1 ? ' atrasado' : ' atrasados') +
             '</span>'
-        : '<span class="muted">Todos al día</span>'
+        : '<span class="muted">Todos al día</span>',
+      ' kpi-priority'
     ) +
     kpi(
-      'Inventario',
+      'Por cobrar',
+      'wallet',
+      '<span class="full">' + clp(dueTotal) + '</span><span class="short">' + clpShort(dueTotal) + '</span>',
+      dueOrders.length
+        ? '<button type="button" class="link-btn" id="homeDue">' +
+            dueOrders.length +
+            (dueOrders.length === 1 ? ' pedido con saldo' : ' pedidos con saldo') +
+            '</button>'
+        : '<span class="muted">Todo cobrado</span>',
+      ' kpi-priority'
+    ) +
+    kpi(
+      'Materiales bajo mínimo',
       'boxes',
       String(low.length),
       low.length
@@ -146,7 +159,8 @@ function homeView() {
             icon('triangle-alert') +
             (low.length === 1 ? 'material bajo mínimo' : 'materiales bajo mínimo') +
             '</span>'
-        : '<span class="muted">Stock en orden</span>'
+        : '<span class="muted">Stock en orden</span>',
+      ' kpi-priority'
     ) +
     kpi(
       'Productos en stock',
@@ -172,20 +186,9 @@ function homeView() {
         '</span>',
       '<button type="button" class="link-btn" id="homeMaterials">Filamento e insumos</button>'
     ) +
-    kpi(
-      'Por cobrar',
-      'wallet',
-      '<span class="full">' + clp(dueTotal) + '</span><span class="short">' + clpShort(dueTotal) + '</span>',
-      dueOrders.length
-        ? '<button type="button" class="link-btn" id="homeDue">' +
-            dueOrders.length +
-            (dueOrders.length === 1 ? ' pedido con saldo' : ' pedidos con saldo') +
-            '</button>'
-        : '<span class="muted">Todo cobrado</span>'
-    ) +
     '</div><div class="home-cols"><section class="panel"><div class="panel-h"><h2>Próximas entregas</h2><button type="button" class="link-btn" data-go="production">Ver pedidos</button></div>' +
     deliveries +
-    '</section><section class="panel"><div class="panel-h"><h2>Stock bajo</h2><button type="button" class="link-btn" data-go="inventory">Inventario</button></div>' +
+    '</section><section class="panel"><div class="panel-h"><h2>Stock y mínimos</h2><button type="button" class="link-btn" data-go="inventory">Inventario</button></div>' +
     stock +
     '</section></div></main>';
   common();
@@ -490,4 +493,81 @@ function dailyNotice(list) {
         c.upkeep + (c.upkeep === 1 ? ' aviso de mantención o stock' : ' avisos de mantención o stock')
     ].filter(Boolean);
   toast('Hoy: ' + (parts.length ? parts.join(' · ') : list.length + ' pendientes') + '.');
+}
+
+// Only device preferences are stored: hashed reminder signatures, scoped to user/workspace.
+function notificationSeenKey() {
+  return S.session?.user?.id && S.workspace?.id
+    ? 'kultiapp_notice_seen:' +
+        encodeURIComponent(S.session.user.id) +
+        ':' +
+        encodeURIComponent(S.workspace.id)
+    : null;
+}
+function notificationSignature(r) {
+  const value = JSON.stringify([r.order || '', r.quote || '', r.go || '', r.text, r.sub, r.tone]);
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i++) hash = Math.imul(hash ^ value.charCodeAt(i), 16777619);
+  return (hash >>> 0).toString(36);
+}
+function unseenNotifications(list = reminders()) {
+  const key = notificationSeenKey();
+  if (!key) return list.length;
+  let seen = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(key) || '[]');
+    if (Array.isArray(stored)) seen = stored;
+  } catch {}
+  return list.filter(r => !seen.includes(notificationSignature(r))).length;
+}
+function markNotificationsSeen() {
+  const key = notificationSeenKey();
+  if (key) {
+    try {
+      localStorage.setItem(key, JSON.stringify(reminders().map(notificationSignature)));
+    } catch {}
+  }
+  q('.notification-badge')?.remove();
+  q('[data-notifications]')?.setAttribute('aria-label', 'Notificaciones y pendientes');
+}
+function notificationDropdown() {
+  const list = reminders(),
+    unread = unseenNotifications(list);
+  return (
+    '<details class="utility-dropdown" id="notificationsMenu"><summary class="btn icon-btn utility-summary" data-notifications aria-label="Notificaciones y pendientes' +
+    (unread ? ': ' + unread + ' nuevos' : '') +
+    '" aria-expanded="false">' +
+    icon('bell') +
+    (unread
+      ? '<span class="notification-badge" aria-hidden="true">' + (unread > 99 ? '99+' : unread) + '</span>'
+      : '') +
+    '</summary><section class="utility-pop notifications-pop" aria-label="Notificaciones y pendientes"><div class="utility-heading"><h2>Notificaciones</h2><button type="button" class="btn icon-btn" data-close-utility aria-label="Cerrar notificaciones">' +
+    icon('x') +
+    '</button></div><p class="small muted">Pendientes del taller · Visto en este dispositivo</p>' +
+    (list.length
+      ? '<div class="reminders">' +
+        list
+          .map(
+            (r, i) =>
+              '<button type="button" class="list-row reminder" data-notice="' +
+              i +
+              '"><span class="rem-ic ' +
+              r.tone +
+              '">' +
+              icon(r.icon) +
+              '</span><span class="lr-main"><b>' +
+              esc(r.text) +
+              '</b><span>' +
+              esc(r.sub) +
+              '</span></span>' +
+              icon('chevron-right') +
+              '</button>'
+          )
+          .join('') +
+        '</div>'
+      : '<div class="utility-empty">' +
+        icon('circle-check') +
+        '<b>Todo al día</b><span>No hay pendientes urgentes.</span></div>') +
+    '</section></details>'
+  );
 }

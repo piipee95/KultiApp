@@ -1,13 +1,47 @@
+# V5.4.0 — Desgaste por hora
+
+Costo por desgaste/hora con tarifa por impresora y copia por impresión; pruebas locales aprobadas. Migración aplicada y verificada sin alterar costos históricos. Ver `versiones/V5_4_0.md`.
+
+# V5.3.2 — Menús anclados y avisos nuevos
+
+Campana con burbuja de nuevos, Configuración desplegable, perfil único abajo y logo centrado. Ajuste responsive a 320 px. Ver `versiones/V5_3_2.md`.
+
+# V5.3.1 — Editor de estudio
+
+Resumen lateral en escritorio, guardado accesible en móvil y jerarquía financiera unificada. Sin cambios en cálculos ni backend. Ver `versiones/V5_3_1.md`.
+
+# V5.3.0 — Estudio de productos
+
+Galería con vista previa, campana de pendientes existentes y acceso superior de cuenta. Conserva tabla, preferencias, datos y cálculos. Ver `versiones/V5_3_0.md`.
+
 # Historial de KultiApp
 
 Resumen de cada versión, de la más reciente a la más antigua. El detalle completo de cada una está en `docs/versiones/`.
 
-## 5.3 · Centro de operaciones
+## 5.5 · Centro de operaciones
 
 - Inicio con periodo (hoy, semana, mes, año, rango), ventas, cobros, costo y utilidad por separado con variación,
   gráfico, estado de pedidos y fabricación, más vendidos y actividad reciente.
 - Menú lateral plegable en escritorio.
 - Primera entrega de Business V1: auditoría, arquitectura, modelo de datos y plan; esquema propuesto probado en local.
+
+## Reparación de backend · Guardado de productos
+
+- `save_product_bundle_v5` incorpora su cadena interna para dejar de llamar a las RPC retiradas en 5.0.
+- Permisos, RLS, validaciones y cálculos conservados. No requiere recargar el borrador ni cambia la
+  versión visible 5.2.2. Detalle en `docs/versiones/V5_2_3.md`.
+
+## 5.2.2 · Paleta Kultiverso Pop
+
+- Paletas clara y oscura con superficies neutras, magenta como acción y cian como apoyo.
+- Mejora de contraste en textos, enlaces, estados y botones; acentos originales del logo conservados.
+- Accesos rápidos más sobrios; selección de tema y funcionamiento existentes conservados.
+
+## 5.2.1 · Claridad y accesibilidad
+
+- Inicio prioriza pendientes y cifras operativas; conserva todos los indicadores y accesos.
+- Etiquetas únicas en el costeo, IVA con controles independientes y objetivos táctiles más cómodos.
+- Orientación en filtros vacíos y mensajes de WhatsApp desplegables, sin cambiar cálculos ni reglas.
 
 ## 5.2 · Estado «Enviado»
 

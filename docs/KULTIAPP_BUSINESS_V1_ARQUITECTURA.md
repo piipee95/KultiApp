@@ -1,6 +1,6 @@
 # KultiApp Business V1 · Arquitectura
 
-Documento de diseño. Lo marcado **(implementado)** está en el código (5.3); lo marcado **(propuesto)** está
+Documento de diseño. Lo marcado **(implementado)** está en el código (5.5); lo marcado **(propuesto)** está
 diseñado y, cuando toca la base de datos, probado en un PostgreSQL local, pero **no aplicado** en producción.
 
 ## 1. Principios
@@ -21,7 +21,7 @@ diseñado y, cuando toca la base de datos, probado en un PostgreSQL local, pero 
 
 | Módulo | Archivo | Estado |
 |---|---|---|
-| Núcleo, interfaz, navegación, cuenta | `01-core`, `02-ui`, `03-app`, `04-account` | Existente; 5.3 agrega el menú lateral plegable y el icono `panel-left`. |
+| Núcleo, interfaz, navegación, cuenta | `01-core`, `02-ui`, `03-app`, `04-account` | Existente; 5.5 agrega el menú lateral plegable y el icono `panel-left`. |
 | Productos y editor de costos | `05-products`, `06-product-editor` | Existente (SKU, categorías y variantes: propuesto). |
 | Inventario | `07-inventory` | Existente (materia prima; terminados por producto). |
 | Impresoras y fallas | `08-printers` | Existente. |
@@ -29,7 +29,7 @@ diseñado y, cuando toca la base de datos, probado en un PostgreSQL local, pero 
 | Finanzas y reportes | `12-finance-reports` | Existente (CSV: pendiente). |
 | Inicio | `13-home` | Existente; ahora compone el centro de operaciones. |
 | Kit de marca | `14-brand` | Existente (5.1). |
-| **Centro de operaciones** | `15-operations` | **Implementado (5.3).** |
+| **Centro de operaciones** | `15-operations` | **Implementado (5.5).** |
 
 ## 3. Centro de operaciones (implementado)
 

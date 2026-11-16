@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const{boot}=require('./boot.cjs');
 const flush=async(k=4)=>{for(let i=0;i<k;i++)await new Promise(r=>setTimeout(r,0))};
-// 5.3: Inicio as an operations center: period filter, sales vs cobros vs cost vs profit, variation, chart,
+// 5.5: Inicio as an operations center: period filter, sales vs cobros vs cost vs profit, variation, chart,
 // order/fabrication status, top products, recent activity and the collapsible sidebar.
 async function test(){
  const dom=boot(),run=s=>dom.window.run(s),j=s=>JSON.parse(run('JSON.stringify('+s+')'));
@@ -71,6 +71,6 @@ async function test(){
  run(`render()`);assert.ok(run('q("#app").classList.contains("side-collapsed")'));
  run(`q('#sideToggle').click()`);assert.ok(!run('q("#app").classList.contains("side-collapsed")'));
  dom.window.close();
- console.log('PASS 5.3 centro de operaciones: periodo (hoy, semana, mes, año, rango), ventas/cobros/costos/utilidad distintos, margen y recargo, variación, gráfico, estado de pedidos, más vendidos, actividad, estados vacíos y menú lateral plegable.');
+ console.log('PASS 5.5 centro de operaciones: periodo (hoy, semana, mes, año, rango), ventas/cobros/costos/utilidad distintos, margen y recargo, variación, gráfico, estado de pedidos, más vendidos, actividad, estados vacíos y menú lateral plegable.');
 }
 test().catch(e=>{console.error(e);process.exit(1)});

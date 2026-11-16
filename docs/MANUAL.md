@@ -33,8 +33,9 @@ mañana, pedidos listos, saldos por cobrar, cotizaciones por vencer, mantencione
   entregar, enviados y atrasados; cada recuadro abre la lista filtrada. **Más vendidos** y **Actividad reciente**.
 - Si el rango es anterior a los 12 meses cargados, se avisa; Reportes trae los meses anteriores.
 
-Más abajo, **Productos en stock** y **Materia prima** (dinero invertido), **Por cobrar**, próximas entregas y stock
-bajo. En escritorio, el botón de arriba del menú lateral lo pliega a solo íconos (se recuerda por dispositivo).
+Más abajo, las cifras de **pedidos en curso**, **por cobrar** y **materiales bajo mínimo** aparecen primero; siguen
+**Productos en stock** y **Materia prima** (dinero invertido), próximas entregas y **Stock y mínimos** (disponible frente
+al mínimo definido). En escritorio, el botón de arriba del menú lateral lo pliega a solo íconos (se recuerda por dispositivo).
 
 ## Productos
 
@@ -75,6 +76,7 @@ bajo. En escritorio, el botón de arriba del menú lateral lo pliega a solo íco
   se ve como documento, PDF o imagen para WhatsApp.
 - Estados: abierta, aceptada, rechazada, vencida. **Convertir en pedido** crea el pedido con su abono.
 - Si se guardó sin costo, su utilidad usa el costo del producto vinculado.
+- Si un filtro de estado no tiene cotizaciones, **Ver todas las cotizaciones** vuelve al filtro *Todas*.
 
 ## Pedidos
 
@@ -85,6 +87,8 @@ bajo. En escritorio, el botón de arriba del menú lateral lo pliega a solo íco
   estado; **Pagos** (abonos, saldo, recordatorios); **Materiales y stock** (reserva, consumo real, «Usar
   materiales actuales del producto»); **Fotos del trabajo**; estado, entrega, costos reales y notas;
   *Registrar falla* y *Eliminar*.
+- **Ver mensaje antes de enviar** despliega la vista previa de WhatsApp; el botón de envío conserva el
+  mensaje correspondiente al estado y saldo del pedido.
 - **Estados**: pendiente → imprimiendo → armado → listo → **enviado** → entregado (o cancelado). Al cambiar el
   estado, la app ofrece enviar el aviso al cliente. Un pedido **enviado** va en camino: sigue «en curso» hasta
   marcarlo entregado, pero ya no aparece como atrasado; el cliente lo ve en su seguimiento. Solo existe en
@@ -144,3 +148,22 @@ instalar la app y cerrar sesión.
 - `seguimiento.html#…`: el cliente ve el avance de su pedido (sin montos).
 - `catalogo.html#…`: catálogo de productos visibles con pedido por WhatsApp.
 - `subir.html#…`: el cliente sube sus fotos con el enlace de 48 horas.
+
+
+## Galería y vista previa (V5.3.0)
+
+En Productos, usa el botón de vista para alternar lista y galería. La preferencia permanece en el dispositivo. Toca la foto para consultar costo, precio, margen y stock disponible; Abrir producto lleva a la ficha completa. Cerrar vuelve a la galería. La campana superior reúne los pendientes actuales del taller; el engranaje abre Configuración y el avatar inferior lleva a Mi perfil.
+
+
+## Editor de estudio (V5.3.1)
+
+En pantallas anchas, el costo, precio final y Guardar cambios permanecen a la derecha de las pestañas. En el celular, están en la barra inferior. Los estados distinguen borrador local, guardando y guardado en la nube; cerrar el navegador conserva las reglas de borrador existentes.
+
+
+## Menús superiores (V5.3.2)
+
+La campana muestra una burbuja con los pendientes nuevos para este dispositivo. Abrir el desplegable los marca como vistos; siguen pendientes hasta que se resuelva la operación correspondiente. El engranaje abre Configuración. El nombre y avatar inferiores llevan a Mi perfil. Ambos menús cierran con Escape o al pulsar fuera. Los vistos no se sincronizan entre dispositivos.
+
+## Desgaste por hora — V5.4.0
+
+En la ficha de impresora se define Desgaste por uso CLP/h. En cada impresión se ve y puede ajustar la tarifa y el costo calculado. Cinco horas y treinta minutos a $100/h suman $550 al lote. Cero desactiva el concepto; las impresiones antiguas parten en cero. Si ya hay desgaste manual, revisar la advertencia antes de usar ambos importes.
