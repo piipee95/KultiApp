@@ -17,6 +17,7 @@ Publicada en https://kultiapp.vercel.app · Powered by ELARA.
   conteo; lista de compras.
 - **Clientes**, **Impresoras**, **Reportes**, **Finanzas** (dinero hoy, utilidad real, gastos, IVA, socios),
   **Inicio** con pendientes y **Mi perfil**.
+- **Centro de operaciones** en Inicio: ventas, cobros, costo y utilidad por periodo, pedidos y fabricación.
 - **Kit de marca**: logos, tarjetas, redes sociales y etiquetas oficiales, con descarga del original.
 
 ## Documentación
@@ -26,10 +27,11 @@ Publicada en https://kultiapp.vercel.app · Powered by ELARA.
 - [Base de datos](docs/BASE_DE_DATOS.md)
 - [Historial de versiones](docs/HISTORIAL.md) (detalle en `docs/versiones/`, SQL en `docs/migraciones/`)
 - [Versiones de consolidación](docs/CONSOLIDACION.md)
+- KultiApp Business V1: [auditoría](docs/KULTIAPP_BUSINESS_V1_AUDITORIA.md), [arquitectura](docs/KULTIAPP_BUSINESS_V1_ARQUITECTURA.md), [modelo de datos](docs/KULTIAPP_BUSINESS_V1_MODELO_DATOS.md), [plan](docs/KULTIAPP_BUSINESS_V1_PLAN.md) y [QA](docs/KULTIAPP_BUSINESS_V1_QA.md)
 
 ## Desarrollo
 
-Sitio estático sin compilación: `index.html`, `styles.css` y `js/01-core.js` … `js/14-brand.js`, scripts
+Sitio estático sin compilación: `index.html`, `styles.css` y `js/01-core.js` … `js/15-operations.js`, scripts
 clásicos por tema que comparten el ámbito global (ver Arquitectura). Backend en Supabase (Auth, Postgres con
 RLS y Storage).
 
@@ -37,6 +39,7 @@ RLS y Storage).
 npm ci
 npm run lint
 npm test
+bash tests/db/run-local.sh   # esquema propuesto de Business V1 en un PostgreSQL local desechable (opcional)
 ```
 
 GitHub Actions corre lint y pruebas, CodeQL y gitleaks. Vercel publica `main` en producción y genera una

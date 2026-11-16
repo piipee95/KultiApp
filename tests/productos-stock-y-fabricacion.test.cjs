@@ -73,7 +73,7 @@ async function test() {
   // Stock orders stay out of sales, get their own filter and label.
   run(`S.orders=db.production_orders`);
   const ym = [new Date().getFullYear(), new Date().getMonth()];
-  assert.equal(run(`monthTotals(${ym[0]},${ym[1]}).count`), 1);
+  assert.equal(run(`opsTotals(opsRange('month').from,opsRange('month').to).count`), 1);
   run(`S.orderFilter='stock';S.mode='production';render()`);
   assert.equal(run('qa(".data-table tbody tr").length'), 1);
   assert.match(run('q(".data-table tbody tr").textContent'), /Para stock/);

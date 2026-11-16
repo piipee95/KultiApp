@@ -1,28 +1,7 @@
 'use strict';
-// Inicio: saludo, accesos rápidos, cifras del mes y pendientes (recordatorios).
-// Sales and estimated profit for orders created in a given month (canceled excluded).
-function monthTotals(year, month) {
-  const list = S.orders.filter(o => {
-    if (o.status === 'canceled' || o.kind === 'stock' || !o.created_at) return false;
-    const d = new Date(o.created_at);
-    return d.getFullYear() === year && d.getMonth() === month;
-  });
-  let sales = 0,
-    profit = 0,
-    net = 0;
-  for (const o of list) {
-    const t = orderNumbers(o);
-    sales += t.sales;
-    net += t.net;
-    profit += t.actualProfit ?? t.estimatedProfit;
-  }
-  return { count: list.length, sales, profit, margin: net > 0 ? profit / net : null };
-}
+// Inicio: saludo, accesos rápidos, centro de operaciones (15-operations.js), existencias y pendientes (recordatorios).
 function homeView() {
   const now = new Date(),
-    cur = monthTotals(now.getFullYear(), now.getMonth()),
-    prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1),
-    prev = monthTotals(prevDate.getFullYear(), prevDate.getMonth()),
     open = S.orders.filter(orderIsOpen),
     late = open.filter(orderIsLate),
     low = inventoryLow(),
@@ -34,7 +13,6 @@ function homeView() {
       .filter(r => r.active && r.counted && n(r.min_stock) > 0)
       .sort((a, b) => stockLevel(a).ratio - stockLevel(b).ratio)
       .slice(0, 5),
-    delta = prev.sales > 0 ? (cur.sales - prev.sales) / prev.sales : null,
     weekday = now.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' }),
     dueOrders = receivables(),
     dueTotal = dueOrders.reduce((s, o) => s + orderBalance(o).due, 0);
@@ -50,17 +28,6 @@ function homeView() {
     '</div><div class="kpi-f">' +
     foot +
     '</div></div>';
-  const deltaFoot =
-    delta == null
-      ? '<span class="muted">' + cur.count + (cur.count === 1 ? ' pedido' : ' pedidos') + ' este mes</span>'
-      : '<span class="' +
-        (delta >= 0 ? 'up' : 'down') +
-        '">' +
-        icon(delta >= 0 ? 'trending-up' : 'trending-down') +
-        Math.abs(Math.round(delta * 100)) +
-        '% vs ' +
-        MONTHS[prevDate.getMonth()] +
-        '</span>';
   const deliveries = upcoming.length
     ? '<table class="data-table"><thead><tr><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th class="r">Total</th></tr></thead><tbody>' +
       upcoming
@@ -156,29 +123,8 @@ function homeView() {
     (S.err ? '<div class="error">' + esc(S.err) + '</div>' : '') +
     homeHero(weekday, open, late, dueTotal) +
     remindersPanel() +
+    operationsView() +
     '<div class="kpis">' +
-    kpi(
-      'Ventas de ' + MONTHS[now.getMonth()],
-      'wallet',
-      '<span class="full">' +
-        clp(cur.sales) +
-        '</span><span class="short">' +
-        clpShort(cur.sales) +
-        '</span>',
-      deltaFoot
-    ) +
-    kpi(
-      'Utilidad estimada',
-      'trending-up',
-      '<span class="full">' +
-        clp(cur.profit) +
-        '</span><span class="short">' +
-        clpShort(cur.profit) +
-        '</span>',
-      '<span class="muted">' +
-        (cur.margin == null ? 'Sin ventas este mes' : 'Margen ' + pct(cur.margin)) +
-        '</span>'
-    ) +
     kpi(
       'Pedidos en curso',
       'clipboard-list',
@@ -243,6 +189,7 @@ function homeView() {
     stock +
     '</section></div></main>';
   common();
+  bindOperations();
   q('#homeNew')?.addEventListener('click', showCreateMenu);
   qa('[data-quick-action]').forEach(
     b =>

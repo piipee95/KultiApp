@@ -659,20 +659,40 @@ function accountMenuItems() {
     'Mi perfil</button>'
   );
 }
+// Desktop sidebar: full or icons only, remembered on this device.
+function sideCollapsed() {
+  if (S.sideCollapsed == null) {
+    try {
+      S.sideCollapsed = localStorage.getItem('kultiapp_side') === '1';
+    } catch {
+      S.sideCollapsed = false;
+    }
+  }
+  return S.sideCollapsed;
+}
 function mountShell() {
   root.classList.add('has-shell');
   root.classList.toggle('is-detail', S.mode === 'product');
   qa('.sidebar,.tabbar').forEach(el => el.remove());
   const side = document.createElement('aside');
   side.className = 'sidebar';
+  root.classList.toggle('side-collapsed', sideCollapsed());
   side.innerHTML =
-    '<img class="side-logo" src="' +
+    '<div class="side-head"><img class="side-logo" src="' +
     LOGO_SRC +
-    '" alt="Kultiverso Pop">' +
+    '" alt="Kultiverso Pop"><button type="button" class="side-toggle" id="sideToggle" aria-label="' +
+    (sideCollapsed() ? 'Mostrar el menú' : 'Plegar el menú') +
+    '" aria-expanded="' +
+    !sideCollapsed() +
+    '" title="' +
+    (sideCollapsed() ? 'Mostrar el menú' : 'Plegar el menú') +
+    '">' +
+    icon('panel-left') +
+    '</button></div>' +
     (canEdit()
-      ? '<button type="button" class="btn btn-primary side-new" data-open-create>' +
+      ? '<button type="button" class="btn btn-primary side-new" data-open-create title="Nuevo">' +
         icon('plus') +
-        'Nuevo</button>'
+        '<span>Nuevo</span></button>'
       : '') +
     '<button type="button" class="side-search" data-open-search>' +
     icon('search') +
@@ -687,6 +707,8 @@ function mountShell() {
         (on ? ' active' : '') +
         '" data-app-mode="' +
         item.mode +
+        '" title="' +
+        item.label +
         '"' +
         (on ? ' aria-current="page"' : '') +
         '>' +
@@ -710,6 +732,16 @@ function mountShell() {
     icon('ellipsis-vertical') +
     '</button><p class="powered">Powered by <b>ELARA</b></p></div>';
   root.prepend(side);
+  q('#sideToggle').onclick = () => {
+    S.sideCollapsed = !sideCollapsed();
+    try {
+      localStorage.setItem('kultiapp_side', S.sideCollapsed ? '1' : '0');
+    } catch {}
+    root.classList.toggle('side-collapsed', S.sideCollapsed);
+    q('#sideToggle').setAttribute('aria-expanded', String(!S.sideCollapsed));
+    q('#sideToggle').setAttribute('aria-label', S.sideCollapsed ? 'Mostrar el menú' : 'Plegar el menú');
+    q('#sideToggle').title = S.sideCollapsed ? 'Mostrar el menú' : 'Plegar el menú';
+  };
   loadAvatarUrl();
   const tabs = document.createElement('nav');
   tabs.className = 'tabbar';

@@ -16,14 +16,14 @@ async function test(){
   S.resources=[{id:'f1',kind:'filament',name:'PLA Negro',unit:'g',unit_cost:16,stock_qty:180,reserved_qty:0,min_stock:500,counted:true,active:true},{id:'m1',kind:'supply',name:'Marco',unit:'un',unit_cost:3500,stock_qty:9,reserved_qty:0,min_stock:3,counted:true,active:true},{id:'p1',kind:'printer',name:'Cobra',power_kw:1.3,active:true}];
   S.mode='home';render()`);
  // Month totals exclude canceled orders and previous months.
- const t=JSON.parse(run(`JSON.stringify(monthTotals(${ym[0]},${ym[1]}))`));
+ const t=JSON.parse(run(`JSON.stringify(opsTotals(opsRange('month').from,opsRange('month').to))`));
  assert.equal(t.count,3);assert.equal(t.sales,2*11900+10000+9000);
  const net=2*11900/1.19+10000+9000;
  assert(Math.abs(t.profit-((2*11900/1.19-8000)+(10000-5500)+(9000-5000)))<1e-6);
  assert(Math.abs(t.margin-t.profit/net)<1e-9);
  assert.equal(run('q(".page-title").textContent'),'Inicio');
  assert.equal(run('q(".sidebar .nav-item.active").dataset.appMode'),'home');
- assert.match(run('q(".kpis").textContent'),/vs /);
+ assert.match(run('q(".ops-kpis").textContent'),/vs /);
  assert.match(run('q(".kpis").textContent'),/1 atrasado/);
  // Upcoming deliveries: open orders only, earliest first, late ones flagged.
  assert.deepEqual(JSON.parse(run('JSON.stringify(qa(".data-table tbody tr").map(r=>r.dataset.homeOrder))')),['o1','o3']);

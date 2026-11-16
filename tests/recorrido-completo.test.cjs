@@ -34,7 +34,7 @@ async function test(){
  run(`S.mode='home';render()`);assert.match(text('.kpis'),/Productos en stock\$6\.261/);
  run(`S.mode='finance';render()`);assert.match(text('.valuation'),/\$6\.261/);
  // Sales of the month: only the customer order counts (the fabrication is stock, not a sale).
- const month=JSON.parse(run('JSON.stringify(monthTotals(new Date().getFullYear(),new Date().getMonth()))'));
+ const month=JSON.parse(run('JSON.stringify(opsTotals(opsRange("month").from,opsRange("month").to))'));
  const rep=JSON.parse(run('JSON.stringify((({total,net,profit})=>({total,net,profit}))(monthReport(new Date().getFullYear(),new Date().getMonth())))'));
  assert.equal(month.sales,20000);assert.equal(rep.total,month.sales);assert.equal(Math.round(rep.profit),Math.round(month.profit));
  // Real profit: net 16.807 − real cost 5.772 = 11.035 on Inicio, Reportes and Finanzas.

@@ -5870,3 +5870,329 @@ button.sheet-user > svg {
   align-items: center;
   gap: 8px;
 }
+
+/* ---------- Centro de operaciones (5.3) ---------- */
+.ops-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 4px 0 12px;
+}
+.ops-bar .pills {
+  margin: 0;
+}
+.ops-range {
+  display: flex;
+  gap: 10px;
+}
+.ops-range .field {
+  min-width: 140px;
+}
+.ops-label {
+  font-weight: 600;
+}
+.ops-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+.ops-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.ops-kpi {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.ops-kpi:hover {
+  border-color: var(--line2);
+}
+.ops-kpi .kpi-f {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+}
+.ops-help {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+.ops-help summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ops-help .i {
+  width: 14px;
+  height: 14px;
+}
+.ops-help p {
+  margin: 8px 0 0;
+  max-width: 78ch;
+}
+.ops-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+.ops-grid-even {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.l-cash,
+.b-cash {
+  background: var(--yellow);
+}
+.ops-chart {
+  display: grid;
+  gap: 4px;
+  align-items: end;
+  padding: 12px 16px 14px;
+}
+.ops-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.ops-pair {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  height: 150px;
+  width: 100%;
+}
+.ops-pair i {
+  display: block;
+  width: min(14px, 44%);
+  min-height: 2px;
+  border-radius: 4px 4px 1px 1px;
+}
+.ops-col span {
+  height: 14px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+.ops-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 16px 6px;
+}
+.ops-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--field);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ops-tile b {
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.ops-tile span {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.ops-tile:hover {
+  border-color: var(--line2);
+}
+.ops-tile.zero b {
+  color: var(--faint);
+}
+.ops-tile.c-pend:not(.zero) b {
+  color: var(--yellow);
+}
+.ops-tile.c-print:not(.zero) b {
+  color: var(--cyan);
+}
+.ops-tile.c-ready:not(.zero) b {
+  color: var(--green);
+}
+.ops-tile.c-ship:not(.zero) b {
+  color: var(--magenta);
+}
+.ops-tile.c-late:not(.zero) b {
+  color: var(--red);
+}
+.ops-tile {
+  background: var(--field);
+}
+.ops-foot {
+  margin: 0;
+  padding: 4px 16px 14px;
+}
+.ops-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+}
+.ops-top-row:first-of-type {
+  border-top: 0;
+}
+.ops-top-main {
+  display: grid;
+  min-width: 0;
+}
+.ops-top-main b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ops-top-row .bar {
+  grid-column: 1 / -1;
+}
+.ops-event {
+  width: 100%;
+}
+.ops-activity .rem-ic {
+  color: var(--muted);
+  background: var(--raised);
+}
+@media (max-width: 1100px) {
+  .ops-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 899px) {
+  .ops-grid,
+  .ops-grid-even {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 599px) {
+  .ops-kpis {
+    gap: 10px;
+  }
+  .ops-kpis .kpi {
+    padding: 13px;
+  }
+  .ops-kpis .kpi-v {
+    font-size: 21px;
+  }
+  .ops-kpis .kpi-v .full {
+    display: none;
+  }
+  .ops-kpis .kpi-v .short {
+    display: inline;
+  }
+  .ops-range {
+    width: 100%;
+  }
+  .ops-range .field {
+    flex: 1;
+    min-width: 0;
+  }
+  .ops-pair {
+    height: 120px;
+  }
+  .ops-chart {
+    padding: 10px 12px 12px;
+    gap: 2px;
+  }
+  .ops-tiles {
+    padding: 12px;
+  }
+}
+
+/* ---------- Menú lateral plegable (5.3) ---------- */
+.side-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+.side-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.side-toggle:hover {
+  color: var(--text);
+  background: var(--raised);
+}
+@media (min-width: 960px) {
+  .side-toggle {
+    display: inline-flex;
+  }
+  #app.side-collapsed {
+    --side-w: 72px;
+  }
+  .side-collapsed .sidebar {
+    padding-inline: 10px;
+    align-items: stretch;
+  }
+  .side-collapsed .side-head {
+    justify-content: center;
+  }
+  .side-collapsed .side-logo,
+  .side-collapsed .side-new span,
+  .side-collapsed .side-search span,
+  .side-collapsed .side-search kbd,
+  .side-collapsed .nav-item > span:not(.nav-count),
+  .side-collapsed .user-text,
+  .side-collapsed .user-chip > .i,
+  .side-collapsed .powered {
+    display: none;
+  }
+  .side-collapsed .side-head {
+    margin-bottom: 18px;
+  }
+  .side-collapsed .side-new,
+  .side-collapsed .side-search,
+  .side-collapsed .nav-item,
+  .side-collapsed .user-chip {
+    justify-content: center;
+    padding-inline: 0;
+  }
+  .side-collapsed .nav-item {
+    position: relative;
+  }
+  .side-collapsed .nav-count {
+    position: absolute;
+    top: 1px;
+    right: 3px;
+    margin: 0;
+    padding: 0 5px;
+    font-size: 10px;
+  }
+  .side-collapsed .account-menu {
+    min-width: 230px;
+  }
+}
+
+.ops-tiles .ops-tile:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}

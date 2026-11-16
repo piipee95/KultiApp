@@ -2,6 +2,13 @@
 
 Resumen de cada versión, de la más reciente a la más antigua. El detalle completo de cada una está en `docs/versiones/`.
 
+## 5.3 · Centro de operaciones
+
+- Inicio con periodo (hoy, semana, mes, año, rango), ventas, cobros, costo y utilidad por separado con variación,
+  gráfico, estado de pedidos y fabricación, más vendidos y actividad reciente.
+- Menú lateral plegable en escritorio.
+- Primera entrega de Business V1: auditoría, arquitectura, modelo de datos y plan; esquema propuesto probado en local.
+
 ## 5.2 · Estado «Enviado»
 
 - Nuevo estado de pedido **Enviado**, entre Listo y Entregado: el pedido va en camino, sigue en curso pero no se
