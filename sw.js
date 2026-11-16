@@ -20,6 +20,7 @@ const SHELL = [
   'js/13-home.js',
   'js/14-brand.js',
   'js/15-operations.js',
+  'js/16-money.js',
   'js/99-start.js',
   'styles.css',
   'favicon.svg',

@@ -122,8 +122,15 @@ function homeView() {
     '<main class="shell home">' +
     (S.err ? '<div class="error">' + esc(S.err) + '</div>' : '') +
     homeHero(weekday, open, late, dueTotal) +
+    moneyView() +
     remindersPanel() +
-    operationsView() +
+    '<details class="home-more"' +
+    (S.homeMoreOpen ? ' open' : '') +
+    '><summary>' +
+    icon('chart-column') +
+    'Ver más detalle: gráfico, más vendidos y actividad</summary>' +
+    operationsView({ bar: false }) +
+    '</details>' +
     '<div class="kpis home-kpis">' +
     kpi(
       'Pedidos en curso',
@@ -193,6 +200,7 @@ function homeView() {
     '</section></div></main>';
   common();
   bindOperations();
+  bindMoney();
   q('#homeNew')?.addEventListener('click', showCreateMenu);
   qa('[data-quick-action]').forEach(
     b =>
@@ -229,7 +237,7 @@ function homeHero(weekday, open, late, dueTotal) {
     parts = [
       open.length
         ? open.length + (open.length === 1 ? ' pedido en curso' : ' pedidos en curso')
-        : 'ningún pedido en curso',
+        : '0 pedidos en curso',
       today ? today + (today === 1 ? ' para entregar hoy' : ' para entregar hoy') : '',
       late.length ? late.length + (late.length === 1 ? ' atrasado' : ' atrasados') : '',
       dueTotal > 0 ? clp(dueTotal) + ' por cobrar' : ''

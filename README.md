@@ -31,7 +31,7 @@ Publicada en https://kultiapp.vercel.app · Powered by ELARA.
 
 ## Desarrollo
 
-Sitio estático sin compilación: `index.html`, `styles.css` y `js/01-core.js` … `js/15-operations.js`, scripts
+Sitio estático sin compilación: `index.html`, `styles.css` y `js/01-core.js` … `js/16-money.js`, scripts
 clásicos por tema que comparten el ámbito global (ver Arquitectura). Backend en Supabase (Auth, Postgres con
 RLS y Storage).
 

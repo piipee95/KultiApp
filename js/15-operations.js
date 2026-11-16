@@ -421,18 +421,9 @@ function opsActivityPanel() {
     '</section>'
   );
 }
-function operationsView() {
-  const range = opsRange(),
-    cur = opsTotals(range.from, range.to),
-    prev = opsTotals(range.prevFrom, range.prevTo),
-    custom = range.kind === 'custom',
-    label =
-      cur.estimatedCount === 0 && cur.count
-        ? 'Utilidad real'
-        : cur.realCount === 0
-          ? 'Utilidad estimada'
-          : 'Utilidad (real + estimada)',
-    plural = (k, one, many) => k + (k === 1 ? one : many);
+// Period selector (today, week, month, year, custom range), shared by «Mi plata» and the detail below it.
+function opsPeriodBar(range = opsRange()) {
+  const custom = range.kind === 'custom';
   return (
     '<section class="ops-bar"><div class="pills ops-pills" role="group" aria-label="Periodo">' +
     OPS_PERIODS.map(
@@ -454,7 +445,22 @@ function operationsView() {
         fieldHtml('Hasta', 'opsTo', range.to, 'date', 'min="' + range.from + '"') +
         '</div>'
       : '<span class="small muted ops-label">' + esc(range.label) + '</span>') +
-    '</section>' +
+    '</section>'
+  );
+}
+function operationsView(opts = {}) {
+  const range = opsRange(),
+    cur = opsTotals(range.from, range.to),
+    prev = opsTotals(range.prevFrom, range.prevTo),
+    label =
+      cur.estimatedCount === 0 && cur.count
+        ? 'Utilidad real'
+        : cur.realCount === 0
+          ? 'Utilidad estimada'
+          : 'Utilidad (real + estimada)',
+    plural = (k, one, many) => k + (k === 1 ? one : many);
+  return (
+    (opts.bar === false ? '' : opsPeriodBar(range)) +
     (opsCovers(range.from)
       ? ''
       : '<p class="small warn ops-note">' +

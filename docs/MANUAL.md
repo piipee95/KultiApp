@@ -23,7 +23,12 @@ computador, y se puede instalar como app.
 Saludo, accesos rápidos (Vender, Nuevo pedido, Fabricar, Cotizar) y **Pendientes**: atrasos, entregas de hoy y
 mañana, pedidos listos, saldos por cobrar, cotizaciones por vencer, mantenciones y el conteo de inventario cuando toca.
 
-**Centro de operaciones.** Elige el periodo (Hoy, Semana, Mes, Año o Rango de fechas):
+**Mi plata.** Lo primero del Inicio: elige el periodo y verás, con palabras simples, lo que **vendiste**, lo que **te
+pagaron**, lo que **te deben** (hoy), lo que **gastaste** y lo que **te queda** (pagos recibidos menos gastos anotados).
+**Mi cuota**: anota una cuota con su monto y vencimiento y te dice cuánto te falta con lo que te han pagado; «Ya la pagué»
+la registra como gasto y la quita. La cuota se guarda en el dispositivo.
+
+**Más detalle** (plegado). Elige el periodo (Hoy, Semana, Mes, Año o Rango de fechas):
 
 - **Ventas**: pedidos de clientes creados en el periodo, con IVA. **Cobros**: pagos recibidos en el periodo.
   **Costo de fabricación**: el real del pedido si ya lo registraste, si no el estimado. **Utilidad**: real, estimada o

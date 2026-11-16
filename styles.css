@@ -7010,3 +7010,177 @@ button.sheet-user > svg {
 .ops-tiles .ops-tile:last-child:nth-child(odd) {
   grid-column: 1 / -1;
 }
+
+/* ---------- Mi plata (5.5) ---------- */
+.money {
+  margin: 0 0 14px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.money-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: space-between;
+}
+.money-top h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.money .ops-bar {
+  margin: 0;
+}
+.money-sentence {
+  margin: 10px 0 14px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.money-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.money-tile {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--field);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.money-tile:hover {
+  border-color: var(--line2);
+}
+.money-tile span {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.money-tile b {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+.money-tile small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.money-tile.good b {
+  color: var(--green);
+}
+.money-tile.warn b {
+  color: var(--yellow);
+}
+.money-left {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
+}
+.money-left span {
+  font-weight: 700;
+}
+.money-left small {
+  font-weight: 500;
+  color: var(--muted);
+}
+.money-left b {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+.money-left.neg {
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+}
+.money-left.neg b {
+  color: var(--red);
+}
+.cuota {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 14px 16px;
+}
+.cuota.empty {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+.cuota.empty div,
+.cuota-head > div {
+  display: grid;
+  gap: 2px;
+}
+.cuota-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cuota-actions {
+  display: flex;
+  gap: 8px;
+}
+.cuota-text {
+  margin: 0;
+  font-size: 15px;
+}
+.cuota .small {
+  margin: 0;
+}
+.home-more {
+  margin: 0 0 14px;
+}
+.home-more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.home-more > summary::-webkit-details-marker {
+  display: none;
+}
+.home-more > summary .i {
+  width: 16px;
+  height: 16px;
+}
+.home-more[open] > summary {
+  margin-bottom: 12px;
+  color: var(--text);
+}
+@media (max-width: 899px) {
+  .money-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 599px) {
+  .money {
+    padding: 14px;
+  }
+  .money-sentence {
+    font-size: 15px;
+  }
+  .money-tile b {
+    font-size: 20px;
+  }
+  .cuota.empty {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
