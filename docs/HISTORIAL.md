@@ -23,6 +23,7 @@ Resumen de cada versión, de la más reciente a la más antigua. El detalle comp
 - Inicio con periodo (hoy, semana, mes, año, rango), ventas, cobros, costo y utilidad por separado con variación,
   gráfico, estado de pedidos y fabricación, más vendidos y actividad reciente.
 - **Mi plata** al comienzo del Inicio, en palabras simples (vendí, me pagaron, me deben, gasté, me queda) y **Mi cuota** con su avance.
+- Menú más simple: seis secciones a la vista y el resto bajo «Más».
 - Menú lateral plegable en escritorio.
 - Primera entrega de Business V1: auditoría, arquitectura, modelo de datos y plan; esquema propuesto probado en local.
 

@@ -7184,3 +7184,51 @@ button.sheet-user > svg {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ---------- Menú más simple: lo diario a la vista, el resto en «Más» (5.5) ---------- */
+.nav-more > summary {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: var(--r);
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+.nav-more > summary::-webkit-details-marker {
+  display: none;
+}
+.nav-more > summary:hover {
+  background: var(--raised);
+  color: var(--text);
+}
+.nav-more > summary > .i:last-child {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s;
+}
+.nav-more[open] > summary > .i:last-child {
+  transform: rotate(180deg);
+}
+.nav-more-list {
+  display: grid;
+  gap: 2px;
+  margin: 2px 0 0 10px;
+  padding-left: 8px;
+  border-left: 1px solid var(--line);
+}
+@media (min-width: 960px) {
+  .side-collapsed .nav-more > summary {
+    display: none;
+  }
+  .side-collapsed .nav-more-list {
+    margin: 4px 0 0;
+    padding: 4px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}

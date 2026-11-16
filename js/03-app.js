@@ -572,16 +572,56 @@ function registerServiceWorker() {
 const NAV_ITEMS = [
   { mode: 'home', label: 'Inicio', icon: 'house' },
   { mode: 'dashboard', label: 'Productos', icon: 'package' },
-  { mode: 'quotes', label: 'Cotizaciones', icon: 'file-text' },
+  { mode: 'quotes', label: 'Cotizaciones', icon: 'file-text', more: true },
   { mode: 'production', label: 'Pedidos', icon: 'clipboard-list' },
   { mode: 'customers', label: 'Clientes', icon: 'users' },
-  { mode: 'files', label: 'Archivos', icon: 'image' },
-  { mode: 'brand', label: 'Kit de marca', icon: 'palette' },
-  { mode: 'reports', label: 'Reportes', icon: 'chart-column' },
+  { mode: 'files', label: 'Archivos', icon: 'image', more: true },
+  { mode: 'brand', label: 'Kit de marca', icon: 'palette', more: true },
+  { mode: 'reports', label: 'Reportes', icon: 'chart-column', more: true },
   { mode: 'finance', label: 'Finanzas', icon: 'wallet' },
   { mode: 'inventory', label: 'Inventario', icon: 'boxes' },
-  { mode: 'resources', label: 'Impresoras', icon: 'printer' }
+  { mode: 'resources', label: 'Impresoras', icon: 'printer', more: true }
 ];
+// The sidebar shows what is used every day; the rest sits under «Más» (nothing is removed).
+const navButton = item => {
+  const on = navActive(item.mode),
+    count = navCount(item.mode);
+  return (
+    '<button type="button" class="nav-item' +
+    (on ? ' active' : '') +
+    '" data-app-mode="' +
+    item.mode +
+    '" title="' +
+    item.label +
+    '"' +
+    (on ? ' aria-current="page"' : '') +
+    '>' +
+    icon(item.icon) +
+    '<span>' +
+    item.label +
+    '</span>' +
+    (count ? '<span class="nav-count">' + count + '</span>' : '') +
+    '</button>'
+  );
+};
+function sideNavHtml() {
+  const rest = NAV_ITEMS.filter(i => i.more),
+    open = sideCollapsed() || S.navMoreOpen || rest.some(i => navActive(i.mode));
+  return (
+    NAV_ITEMS.filter(i => !i.more)
+      .map(navButton)
+      .join('') +
+    '<details class="nav-more"' +
+    (open ? ' open' : '') +
+    '><summary class="nav-more-summary">' +
+    icon('layout-grid') +
+    '<span>Más</span>' +
+    icon('chevron-down') +
+    '</summary><div class="nav-more-list">' +
+    rest.map(navButton).join('') +
+    '</div></details>'
+  );
+}
 const PAGE_TITLES = {
   home: 'Inicio',
   dashboard: 'Productos',
@@ -707,27 +747,7 @@ function mountShell() {
     '<span>Buscar</span><kbd>' +
     (/mac|iphone|ipad/i.test(navigator.platform || navigator.userAgent) ? '⌘K' : 'Ctrl K') +
     '</kbd></button><nav class="side-nav app-nav" aria-label="Navegación principal">' +
-    NAV_ITEMS.map(item => {
-      const on = navActive(item.mode),
-        count = navCount(item.mode);
-      return (
-        '<button type="button" class="nav-item' +
-        (on ? ' active' : '') +
-        '" data-app-mode="' +
-        item.mode +
-        '" title="' +
-        item.label +
-        '"' +
-        (on ? ' aria-current="page"' : '') +
-        '>' +
-        icon(item.icon) +
-        '<span>' +
-        item.label +
-        '</span>' +
-        (count ? '<span class="nav-count">' + count + '</span>' : '') +
-        '</button>'
-      );
-    }).join('') +
+    sideNavHtml() +
     '</nav><div class="side-user"><button type="button" class="user-chip" id="accountButton" aria-label="Mi perfil">' +
     userAvatar() +
     '<span class="user-text"><b>' +
@@ -738,6 +758,8 @@ function mountShell() {
     icon('chevron-right') +
     '</button><p class="powered">Powered by <b>ELARA</b></p></div>';
   root.prepend(side);
+  const more = q('.nav-more');
+  if (more) more.ontoggle = () => !sideCollapsed() && (S.navMoreOpen = more.open);
   q('#sideToggle').onclick = () => {
     S.sideCollapsed = !sideCollapsed();
     try {
