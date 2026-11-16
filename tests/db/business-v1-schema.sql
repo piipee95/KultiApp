@@ -18,6 +18,7 @@ create table public.cost_items (id uuid primary key default gen_random_uuid());
 create table public.print_jobs (id uuid primary key default gen_random_uuid());
 create table public.workspace_invites (id uuid primary key default gen_random_uuid());
 create table public.workspace_settings (workspace_id uuid primary key);
+create view public.product_cost_summary as select id from public.products;
 create table public.brand_assets (id uuid primary key default gen_random_uuid(), workspace_id uuid not null, created_by uuid not null default auth.uid());
 create policy brand_assets_insert on public.brand_assets for insert to authenticated with check (private.can_edit_workspace(workspace_id) and created_by = auth.uid());
 alter table public.brand_assets enable row level security;
@@ -103,6 +104,7 @@ select pg_temp.fails($$update public.manufacturing_orders set produced_qty = 99$
 select pg_temp.fails($$insert into public.product_variants (workspace_id, product_id, name, stock_qty) values ('11111111-1111-1111-1111-111111111111', 'b0000000-0000-0000-0000-000000000001', 'Con stock', 50)$$, 'el editor no fija stock de una variante');
 select pg_temp.fails($$update public.product_variants set stock_qty = 50$$, 'el editor no modifica stock de una variante');
 select pg_temp.fails($$truncate public.products$$, 'TRUNCATE retirado a la API');
+select pg_temp.eq((select count(*) from information_schema.table_privileges where grantee = 'authenticated' and privilege_type in ('TRUNCATE', 'TRIGGER', 'REFERENCES') and table_schema = 'public' and table_name in ('cost_items', 'print_jobs', 'products', 'workspace_invites', 'workspace_members', 'workspace_settings', 'workspaces', 'product_cost_summary')), 0::bigint, 'ningún TRUNCATE/TRIGGER/REFERENCES queda para la API en las 8 tablas y vistas corregidas');
 select pg_temp.fails($$insert into public.brand_assets (workspace_id, created_by) values ('11111111-1111-1111-1111-111111111111', 'aaaaaaaa-0000-0000-0000-000000000003')$$, 'brand_assets: created_by debe ser quien inserta');
 insert into public.brand_assets (workspace_id) values ('11111111-1111-1111-1111-111111111111');
 set test.uid = 'aaaaaaaa-0000-0000-0000-000000000009';

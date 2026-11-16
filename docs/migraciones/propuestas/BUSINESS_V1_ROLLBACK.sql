@@ -13,7 +13,7 @@ alter table public.products
 -- Los permisos retirados (A1) y la política de A0 se restauran solo si hiciera falta:
 grant truncate, trigger, references on
   public.cost_items, public.print_jobs, public.products, public.workspace_invites,
-  public.workspace_members, public.workspace_settings, public.workspaces
+  public.workspace_members, public.workspace_settings, public.workspaces, public.product_cost_summary
   to authenticated;
 drop policy if exists brand_assets_insert on public.brand_assets;
 create policy brand_assets_insert on public.brand_assets for insert to authenticated

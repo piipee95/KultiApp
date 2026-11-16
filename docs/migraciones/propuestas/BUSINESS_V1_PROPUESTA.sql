@@ -15,7 +15,7 @@ create policy brand_assets_insert on public.brand_assets for insert to authentic
 -- (PostgREST no expone TRUNCATE, pero sobran permisos heredados de las primeras versiones.)
 revoke truncate, trigger, references on
   public.cost_items, public.print_jobs, public.products, public.workspace_invites,
-  public.workspace_members, public.workspace_settings, public.workspaces
+  public.workspace_members, public.workspace_settings, public.workspaces, public.product_cost_summary
   from authenticated;
 
 -- A2. Productos: SKU, categorías, tiempo de fabricación y modalidad.
