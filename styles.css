@@ -7251,3 +7251,35 @@ button.sheet-user > svg {
     flex: 1 1 100%;
   }
 }
+
+/* 5.6 · Cobrar */
+.cobrar-row {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cobrar-row.old {
+  border-color: var(--warn, #d97706);
+}
+.cobrar-main,
+.cobrar-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cobrar-main > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.cobrar-due {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.cobrar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

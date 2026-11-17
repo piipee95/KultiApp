@@ -21,6 +21,7 @@ const SHELL = [
   'js/14-brand.js',
   'js/15-operations.js',
   'js/16-money.js',
+  'js/17-cobrar.js',
   'js/99-start.js',
   'styles.css',
   'favicon.svg',

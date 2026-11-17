@@ -187,7 +187,7 @@ function showCuota() {
   });
 }
 // Quick payment: pick the order that still owes money, confirm the amount and save it.
-function showQuickPayment() {
+function showQuickPayment(preselect = null) {
   if (!canEdit()) return;
   const owing = receivables()
     .filter(o => o.status !== 'canceled')
@@ -228,6 +228,10 @@ function showQuickPayment() {
       '</div><div id="qpFeedback" class="small" role="status"></div><div class="dialog-actions"><button class="btn btn-primary" type="submit">Guardar pago</button></div></form>'
   );
   const picked = () => owing.find(o => o.id === q('#qpOrder').value);
+  if (typeof preselect === 'string' && owing.some(o => o.id === preselect)) {
+    q('#qpOrder').value = preselect;
+    q('#qpAmount').value = orderBalance(picked()).due;
+  }
   q('#qpOrder').onchange = () => (q('#qpAmount').value = orderBalance(picked()).due);
   q('#quickPayForm').onsubmit = async e => {
     e.preventDefault();
@@ -242,7 +246,7 @@ function showQuickPayment() {
       await addPayment(order, amount, q('#qpMethod').value, q('#qpDate').value);
       toast('Pago registrado.');
       dialog.close();
-      if (S.mode === 'home') render();
+      if (S.mode === 'home' || S.mode === 'cobrar') render();
     } catch (error) {
       q('#qpFeedback').textContent = error.message;
       btn.disabled = false;
@@ -251,7 +255,7 @@ function showQuickPayment() {
   enhanceFields();
 }
 function bindMoney() {
-  qa('[data-money-paid]').forEach(b => (b.onclick = showQuickPayment));
+  qa('[data-money-paid]').forEach(b => (b.onclick = () => showQuickPayment()));
   qa('[data-money-expense]').forEach(
     b => (b.onclick = () => showExpense({})?.addEventListener('close', () => S.mode === 'home' && render()))
   );
