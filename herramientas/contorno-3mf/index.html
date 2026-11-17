@@ -385,16 +385,44 @@ const Core = (function () {
     const out = []; for (let i = 0; i < n; i++) if (keep[i]) out.push(P[2 * i], P[2 * i + 1]); return out;
   }
 
-  function earClip(P) { // P plano [x,y,...], polígono simple CCW
-    const n = P.length / 2, prv = new Int32Array(n), nxt = new Int32Array(n);
+  // Triangula un polígono simple CCW (P plano [x,y,...]). Primero el corte rápido de siempre; si se atasca o el
+  // resultado no cubre exactamente el polígono (pasa cuando vértices de la rejilla tocan el borde de una oreja),
+  // se repite revisando todos los vértices, también los que tocan el borde.
+  function earClip(P) {
+    for (const strict of [true, false]) {
+      try { const tr = earClipRun(P, strict); if (earClipOk(P, tr)) return tr; } catch (e) { if (!strict) throw e; }
+    }
+    throw new Error('No pude triangular el contorno.');
+  }
+  function earClipOk(P, tr) { // los triángulos son CCW y suman exactamente el área del polígono
+    const n = P.length / 2; let poly = 0, sum = 0;
+    for (let i = 0; i < n; i++) { const j = (i + 1) % n; poly += P[2 * i] * P[2 * j + 1] - P[2 * j] * P[2 * i + 1]; }
+    for (let t = 0; t < tr.length; t += 3) {
+      const a = tr[t], b = tr[t + 1], c = tr[t + 2], ar = (P[2 * b] - P[2 * a]) * (P[2 * c + 1] - P[2 * a + 1]) - (P[2 * b + 1] - P[2 * a + 1]) * (P[2 * c] - P[2 * a]);
+      if (ar < -1e-9) return false; sum += ar;
+    }
+    return Math.abs(sum - poly) <= 1e-6 * Math.max(1, Math.abs(poly));
+  }
+  function earClipRun(P, strict) {
+    const n = P.length / 2, prv = new Int32Array(n), nxt = new Int32Array(n), alive = new Uint8Array(n).fill(1);
     for (let i = 0; i < n; i++) { prv[i] = (i - 1 + n) % n; nxt[i] = (i + 1) % n; }
     const cross = (a, b, c) => (P[2 * b] - P[2 * a]) * (P[2 * c + 1] - P[2 * a + 1]) - (P[2 * b + 1] - P[2 * a + 1]) * (P[2 * c] - P[2 * a]);
     const convex = i => cross(prv[i], i, nxt[i]) >= 0;
     const inside = (a, b, c, q) => cross(a, b, q) > 1e-12 && cross(b, c, q) > 1e-12 && cross(c, a, q) > 1e-12;
+    const insideEdge = (a, b, c, q) => cross(a, b, q) >= -1e-12 && cross(b, c, q) >= -1e-12 && cross(c, a, q) >= -1e-12;
+    const same = (i, j) => P[2 * i] === P[2 * j] && P[2 * i + 1] === P[2 * j + 1];
     const reflex = new Set(); for (let i = 0; i < n; i++) if (!convex(i)) reflex.add(i);
-    const isEar = i => { if (reflex.has(i)) return false; const a = prv[i], c = nxt[i]; for (const r of reflex) { if (r === a || r === c || r === i) continue; if (inside(a, i, c, r)) return false; } return true; };
+    const isEar = i => {
+      if (reflex.has(i)) return false; const a = prv[i], c = nxt[i];
+      if (strict) { for (const r of reflex) { if (r === a || r === c || r === i) continue; if (inside(a, i, c, r)) return false; } return true; }
+      for (let k = 0; k < n; k++) { // modo completo: todos los vértices vivos, incluso los que tocan el borde
+        if (!alive[k] || k === a || k === i || k === c || same(k, a) || same(k, i) || same(k, c)) continue;
+        if (insideEdge(a, i, c, k)) return false;
+      }
+      return true;
+    };
     const ear = new Int8Array(n); for (let i = 0; i < n; i++) ear[i] = isEar(i) ? 1 : 0;
-    const alive = new Uint8Array(n).fill(1), tris = []; let remaining = n, cur = 0, guard = 0;
+    const tris = []; let remaining = n, cur = 0, guard = 0;
     while (remaining > 3) {
       let found = -1, j = cur, cnt = 0;
       while (cnt < remaining) { if (ear[j]) { found = j; break; } j = nxt[j]; cnt++; }
@@ -478,8 +506,8 @@ const Core = (function () {
     const d1 = (bx - ax) * (py - ay) - (by - ay) * (px - ax), d2 = (cx - bx) * (py - by) - (cy - by) * (px - bx), d3 = (ax - cx) * (py - cy) - (ay - cy) * (px - cx);
     return (d1 > 0 && d2 > 0 && d3 > 0) || (d1 < 0 && d2 < 0 && d3 < 0);
   }
-  // triangula un polígono con agujeros: une cada agujero al contorno con un "puente" y corta orejas
-  function triangulateRegion(outerIds, holesIds, X, Y) {
+  // une cada agujero al contorno con un "puente" trazado hacia la derecha (método por rayo)
+  function joinHolesRay(outerIds, holesIds, X, Y) {
     let poly = outerIds.slice();
     const holes = holesIds.map(h => { let m = 0; for (let i = 1; i < h.length; i++) if (X[h[i]] > X[h[m]]) m = i; return { ids: h, m }; });
     holes.sort((a, b) => X[b.ids[b.m]] - X[a.ids[a.m]]);
@@ -510,9 +538,62 @@ const Core = (function () {
       ins.push(poly[R]);
       poly = poly.slice(0, R + 1).concat(ins, poly.slice(R + 1));
     }
+    return poly;
+  }
+
+  // Alternativa cuando el rayo cruza otro hueco (letras cursivas con huecos pegados, como la «s» de Great Vibes):
+  // prueba pares (vértice del hueco, vértice del contorno) del más cercano al más lejano y usa el primero cuyo puente
+  // no corta ningún borde, no roza otro vértice y queda dentro de la letra.
+  function joinHolesBrute(outerIds, holesIds, X, Y) {
+    let poly = outerIds.slice(); const pending = holesIds.map(h => h.slice());
+    const o = (a, b, c) => Math.sign((X[b] - X[a]) * (Y[c] - Y[a]) - (Y[b] - Y[a]) * (X[c] - X[a]));
+    const crosses = (a, b, c, d) => a !== c && a !== d && b !== c && b !== d && o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0;
+    const near = (a, b, k) => { // el vértice k está sobre el segmento a-b (sin ser sus extremos)
+      const dx = X[b] - X[a], dy = Y[b] - Y[a], L2 = dx * dx + dy * dy; if (L2 < 1e-24) return false;
+      const t = ((X[k] - X[a]) * dx + (Y[k] - Y[a]) * dy) / L2; if (t <= 1e-9 || t >= 1 - 1e-9) return false;
+      return Math.hypot(X[a] + t * dx - X[k], Y[a] + t * dy - Y[k]) < 1e-9;
+    };
+    const inIds = (px, py, ids) => { let r = false; for (let i = 0, j = ids.length - 1; i < ids.length; j = i++) { const a = ids[i], b = ids[j]; if (((Y[a] > py) !== (Y[b] > py)) && (px < (X[b] - X[a]) * (py - Y[a]) / (Y[b] - Y[a]) + X[a])) r = !r; } return r; };
+    while (pending.length) {
+      pending.sort((A, B) => Math.max(...B.map(i => X[i])) - Math.max(...A.map(i => X[i])));
+      const hole = pending.shift(), rings = [poly, hole, ...pending], pairs = [];
+      for (let R = 0; R < poly.length; R++) for (let m = 0; m < hole.length; m++) pairs.push([Math.hypot(X[poly[R]] - X[hole[m]], Y[poly[R]] - Y[hole[m]]), R, m]);
+      pairs.sort((u, v) => u[0] - v[0]);
+      let pick = null;
+      for (const [, R, m] of pairs) {
+        const a = poly[R], b = hole[m]; let ok = true;
+        for (const ring of rings) { for (let i = 0; i < ring.length && ok; i++) { const c = ring[i], d = ring[(i + 1) % ring.length]; if (crosses(a, b, c, d) || near(a, b, c)) ok = false; } if (!ok) break; }
+        if (!ok) continue;
+        const mx = (X[a] + X[b]) / 2, my = (Y[a] + Y[b]) / 2;
+        if (!inIds(mx, my, poly) || inIds(mx, my, hole) || pending.some(h => inIds(mx, my, h))) continue;
+        pick = [R, m]; break;
+      }
+      if (!pick) throw new Error('No pude unir un hueco de letra (o, e, a…) al contorno.');
+      const [R, m] = pick, hn = hole.length, ins = [];
+      for (let k = 0; k <= hn; k++) ins.push(hole[(m + k) % hn]);
+      ins.push(poly[R]);
+      poly = poly.slice(0, R + 1).concat(ins, poly.slice(R + 1));
+    }
+    return poly;
+  }
+  function polyCrossings(P) { // cruces propios de un polígono plano [x,y,...] (debe ser 0)
+    const n = P.length / 2, o = (ax, ay, bx, by, cx, cy) => Math.sign((bx - ax) * (cy - ay) - (by - ay) * (cx - ax)); let c = 0;
+    for (let i = 0; i < n; i++) { const ai = (i + 1) % n; for (let j = i + 2; j < n; j++) { const bj = (j + 1) % n; if (bj === i) continue;
+      const ax = P[2 * i], ay = P[2 * i + 1], bx = P[2 * ai], by = P[2 * ai + 1], cx = P[2 * j], cy = P[2 * j + 1], dx = P[2 * bj], dy = P[2 * bj + 1];
+      if (o(ax, ay, bx, by, cx, cy) * o(ax, ay, bx, by, dx, dy) < 0 && o(cx, cy, dx, dy, ax, ay) * o(cx, cy, dx, dy, bx, by) < 0) c++; } }
+    return c;
+  }
+  function triangulatePoly(poly, X, Y, check) {
     const P = new Array(poly.length * 2); for (let i = 0; i < poly.length; i++) { P[2 * i] = X[poly[i]]; P[2 * i + 1] = Y[poly[i]]; }
+    if (check && polyCrossings(P) > 0) throw new Error('El puente del hueco cruza otro hueco.');
     const tr = earClip(P); const out = new Array(tr.length); for (let i = 0; i < tr.length; i++) out[i] = poly[tr[i]];
     return out;
+  }
+  // triangula un polígono con agujeros: une cada agujero al contorno con un "puente" y corta orejas
+  function triangulateRegion(outerIds, holesIds, X, Y) {
+    try { return triangulatePoly(joinHolesRay(outerIds, holesIds, X, Y), X, Y, holesIds.length > 0); }
+    catch (e) { if (!holesIds.length) throw e; }
+    return triangulatePoly(joinHolesBrute(outerIds, holesIds, X, Y), X, Y, true);
   }
 
   // loops: lazos planos en mm (orientación cualquiera). Devuelve malla extruida de z0 a z1.
