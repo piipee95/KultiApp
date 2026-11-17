@@ -96,7 +96,8 @@ async function test() {
   );
   assert.match(zip['xl/worksheets/sheet2.xml'], /Ana &amp; &lt;Co&gt;/);
   assert.match(zip['xl/worksheets/sheet5.xml'], /Abono/);
-  const tmp = path.join(os.tmpdir(), 'kulti-report.xlsx');
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kulti-report-'));
+  const tmp = path.join(tmpDir, 'report.xlsx');
   fs.writeFileSync(tmp, Buffer.from(bytes));
   try {
     const out = execFileSync('python3', [
@@ -110,6 +111,8 @@ async function test() {
     );
   } catch (e) {
     if (!/No module named|ENOENT/.test(String(e.stderr || e.message))) throw e;
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
   }
   // Backup: every table of the workspace, prints and costs by product ids.
   run(`window.calls=[];supabase.from=table=>{const q={_t:table,select(){return q},eq(k,v){calls.push(table+':'+k+'='+v);return q},in(k,v){calls.push(table+':'+k+' in '+v.join(','));return q},then(a,b){const rows=table==='products'?[{id:'p1',name:'Cuadro',materials:[{a:1}]}]:table==='print_jobs'?[{id:'j1',product_id:'p1',filaments:[{name:'Negro'}]}]:[];return Promise.resolve({data:rows,error:null}).then(a,b)}};return q};
