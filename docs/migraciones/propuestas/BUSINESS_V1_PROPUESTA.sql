@@ -1,4 +1,5 @@
--- KultiApp Business V1 · PROPUESTA de esquema. NO APLICADA EN PRODUCCIÓN.
+-- KultiApp Business V1 · Fase 1. APLICADA EN PRODUCCIÓN el 2026-11-17 en tres migraciones (A0+A1, A2–A7, B) y verificada:
+-- 10 pedidos → 10 líneas y 9 órdenes de fabricación; total $83.000 igual en ambos lados; RLS activa; anon sin acceso.
 -- Probada solo en una base PostgreSQL 16 local y desechable (ver docs/KULTIAPP_BUSINESS_V1_QA.md).
 -- Todo es aditivo: no borra ni modifica datos existentes. Retroceso: BUSINESS_V1_ROLLBACK.sql.
 -- Clave de negocio: workspace_id (ya está en todas las tablas y en todas las políticas); no se agrega business_id.

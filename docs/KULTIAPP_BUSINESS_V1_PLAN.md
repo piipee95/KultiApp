@@ -25,7 +25,10 @@ y probado en entorno local, sin aplicar; **Pendiente** = sin hacer.
 
 ## Fases siguientes
 
-**Fase 1 · Base de datos (con aprobación).** Aplicar A0 y A1 (seguridad y rendimiento, bajo riesgo). Luego el esquema
+**Fase 1 · Base de datos — HECHA el 2026-11-17 (aprobada por el dueño).** Se aplicó en tres migraciones atómicas
+(`business_v1_a0_a1_seguridad_rendimiento`, `business_v1_a2_a7_esquema_aditivo`, `business_v1_b_relleno_desde_pedidos`) y se verificó:
+10 pedidos → 10 líneas y 9 órdenes de fabricación, total $83.000 idéntico, RLS activa en las 4 tablas nuevas, `anon` sin acceso, sin
+avisos de seguridad nuevos. El cliente sigue leyendo `production_orders`. Detalle original: Aplicar A0 y A1 (seguridad y rendimiento, bajo riesgo). Luego el esquema
 aditivo A2–A7 en una rama de base de datos, ensayar el relleno B con copia de los datos reales y recién entonces
 aplicarlo. *Salida*: tablas nuevas vacías o rellenas, cliente sin cambios, 42 suites verdes.
 
