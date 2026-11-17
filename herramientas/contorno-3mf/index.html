@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contorno para textos 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: una columna de trabajo, tres pasos numerados; vista previa a ancho completo. */
+:root {
+  --bg: #eef0ee; --panel: #ffffff; --ink: #1c2321; --muted: #5d6965; --line: #d5dad7;
+  --accent: #c2410c; --accent-ink: #ffffff; --ok: #1a7f4b; --warn: #b45309;
+  --letters: #1c2321; --base: #f4d9c9;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141918; --panel: #1d2422; --ink: #e8ece9; --muted: #98a39e; --line: #33403c;
+    --accent: #f08a5d; --accent-ink: #1a1210; --ok: #5fcf93; --warn: #e8a35a;
+    --letters: #f2f4f2; --base: #5a3a2c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141918; --panel: #1d2422; --ink: #e8ece9; --muted: #98a39e; --line: #33403c;
+  --accent: #f08a5d; --accent-ink: #1a1210; --ok: #5fcf93; --warn: #e8a35a;
+  --letters: #f2f4f2; --base: #5a3a2c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+main { max-width: 780px; margin: 0 auto; padding: 28px 16px 56px; display: flex; flex-direction: column; gap: 20px; }
+h1 { font-size: 28px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.lead { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+h2 { font-size: 15px; margin: 0; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.n { font-family: var(--font-mono); font-size: 12px; width: 24px; height: 24px; border-radius: 6px; background: var(--ink); color: var(--panel); display: inline-flex; align-items: center; justify-content: center; }
+.drop { border: 2px dashed var(--line); border-radius: 10px; padding: 26px 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 4px; align-items: center; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over, .drop:focus-visible { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); outline: none; }
+.drop strong { font-size: 16px; }
+.drop span { color: var(--muted); font-size: 14px; }
+.drop .file { font-family: var(--font-mono); color: var(--ink); font-size: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+label b { color: var(--ink); font-weight: 500; font-size: 14px; }
+input[type=number] { font: inherit; font-family: var(--font-mono); font-size: 15px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); width: 100%; }
+input[type=number]:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+button { font: inherit; font-weight: 600; font-size: 15px; padding: 10px 18px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.status { font-size: 14px; color: var(--muted); min-height: 21px; }
+.status.err { color: var(--warn); }
+.status.ok { color: var(--ok); }
+#preview { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1px solid var(--line); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 500; color: var(--muted); font-size: 13px; }
+td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.note { font-size: 14px; color: var(--muted); max-width: 66ch; }
+.note code { font-family: var(--font-mono); font-size: 13px; background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .drop { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Contorno para textos 3D</h1>
+    <p class="lead">Sube el 3MF con tu texto en relieve. La página le agrega una base fina de borde suave, y deja base y letras como dos partes para imprimirlas en colores distintos.</p>
+  </header>
+
+  <section aria-labelledby="h1s">
+    <h2 id="h1s"><span class="n">1</span>Tu archivo 3MF</h2>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Elegir o soltar un archivo 3MF">
+      <strong id="dropTitle">Suelta el archivo aquí o toca para elegirlo</strong>
+      <span id="dropSub">Exportado desde tu slicer, con el texto ya escrito</span>
+      <span class="file" id="fileName" hidden></span>
+    </div>
+    <input type="file" id="file" accept=".3mf,.zip" hidden>
+  </section>
+
+  <section aria-labelledby="h2s">
+    <h2 id="h2s"><span class="n">2</span>Ajustes</h2>
+    <div class="grid">
+      <label for="margen"><b>Borde (mm)</b>Ancho de la base alrededor de las letras<input type="number" id="margen" value="1" min="0.3" max="5" step="0.1"></label>
+      <label for="base"><b>Espesor de la base (mm)</b>Capa que une las letras<input type="number" id="base" value="0.6" min="0.2" max="3" step="0.1"></label>
+      <label for="relieve"><b>Alto de las letras (mm)</b>Sobre la base. 0 deja el original<input type="number" id="relieve" value="1.6" min="0" max="10" step="0.1"></label>
+      <label for="filBase"><b>Filamento de la base</b>Número en tu slicer<input type="number" id="filBase" value="1" min="1" max="16" step="1"></label>
+      <label for="filLetras"><b>Filamento de las letras</b>Número en tu slicer<input type="number" id="filLetras" value="2" min="1" max="16" step="1"></label>
+    </div>
+    <div class="row">
+      <button class="primary" id="go" disabled>Generar contorno</button>
+      <span class="status" id="status" role="status" aria-live="polite">Elige un archivo para empezar.</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="h3s" id="result" hidden>
+    <h2 id="h3s"><span class="n">3</span>Resultado</h2>
+    <canvas id="preview" width="1400" height="420" aria-label="Vista desde arriba del contorno y las letras"></canvas>
+    <div class="legend"><span><i class="sw" style="background:var(--base)"></i>Contorno (base)</span><span><i class="sw" style="background:var(--letters)"></i>Letras</span></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Objeto</th><th>Base</th><th>Letras</th><th>Total</th><th>Trozos de base</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <div class="row"><button class="primary" id="dl">Descargar archivo</button><span class="status" id="dlStatus" role="status" aria-live="polite"></span></div>
+    <p class="note" id="renameNote" hidden>Este visor no permite guardar archivos <code>.3mf</code> directamente, así que se guarda como <code>.zip</code>. Cámbiale la extensión a <code>.3mf</code> y ábrelo en tu slicer.</p>
+    <p class="note">Revisa en el slicer que cada parte tenga el filamento que esperas. Todo se calcula en tu navegador: el archivo no se sube a ningún servidor.</p>
+  </section>
+</main>
+
+<script>
+// Motor: agrega contorno suave (base) a textos en relieve de un 3MF. Corre en navegador y en Node.
+const Core = (function () {
+  'use strict';
+  const RES = 0.05; // mm por pixel
+
+  // ------------------------------------------------------------ ZIP
+  const crcTable = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = crcTable[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+
+  async function inflateRaw(u8) {
+    const stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+
+  async function readZip(buf) {
+    const u8 = new Uint8Array(buf), dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    let eocd = -1;
+    for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    if (eocd < 0) throw new Error('El archivo no es un ZIP/3MF válido.');
+    const n = dv.getUint16(eocd + 10, true); let p = dv.getUint32(eocd + 16, true);
+    const td = new TextDecoder(), entries = {};
+    for (let k = 0; k < n; k++) {
+      if (dv.getUint32(p, true) !== 0x02014b50) throw new Error('ZIP dañado.');
+      const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+      const nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+      const name = td.decode(u8.subarray(p + 46, p + 46 + nl));
+      const lnl = dv.getUint16(off + 26, true), lel = dv.getUint16(off + 28, true);
+      const start = off + 30 + lnl + lel;
+      entries[name] = { method, data: u8.subarray(start, start + csize) };
+      p += 46 + nl + el + cl;
+    }
+    const files = {};
+    for (const [name, e] of Object.entries(entries)) {
+      if (name.endsWith('/')) continue;
+      files[name] = e.method === 0 ? e.data : await inflateRaw(e.data);
+    }
+    return files;
+  }
+
+  function writeZip(files) { // files: {nombre: Uint8Array}; sin compresión
+    const te = new TextEncoder(), parts = [], central = []; let offset = 0;
+    for (const [name, data] of Object.entries(files)) {
+      const nb = te.encode(name), crc = crc32(data);
+      const lh = new Uint8Array(30 + nb.length), d = new DataView(lh.buffer);
+      d.setUint32(0, 0x04034b50, true); d.setUint16(4, 20, true); d.setUint16(6, 0x0800, true); d.setUint16(8, 0, true);
+      d.setUint16(10, 0, true); d.setUint16(12, 0x21, true); d.setUint32(14, crc, true);
+      d.setUint32(18, data.length, true); d.setUint32(22, data.length, true); d.setUint16(26, nb.length, true); d.setUint16(28, 0, true);
+      lh.set(nb, 30);
+      const ch = new Uint8Array(46 + nb.length), c = new DataView(ch.buffer);
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+      c.setUint16(12, 0, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true);
+      c.setUint16(28, nb.length, true); c.setUint32(42, offset, true); ch.set(nb, 46);
+      parts.push(lh, data); central.push(ch); offset += lh.length + data.length;
+    }
+    const cdStart = offset; let cdSize = 0; for (const c of central) { parts.push(c); cdSize += c.length; }
+    const e = new Uint8Array(22), ed = new DataView(e.buffer);
+    ed.setUint32(0, 0x06054b50, true); ed.setUint16(8, central.length, true); ed.setUint16(10, central.length, true);
+    ed.setUint32(12, cdSize, true); ed.setUint32(16, cdStart, true); parts.push(e);
+    let total = 0; for (const p of parts) total += p.length;
+    const out = new Uint8Array(total); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+    return out;
+  }
+
+  // ------------------------------------------------------------ lectura del modelo 3MF
+  function attrs(s) { const a = {}; s.replace(/([\w:]+)="([^"]*)"/g, (_, k, v) => { a[k] = v; return ''; }); return a; }
+  function parseTransform(s) {
+    if (!s) return { M: [1, 0, 0, 0, 1, 0, 0, 0, 1], t: [0, 0, 0] };
+    const v = s.trim().split(/\s+/).map(Number); return { M: v.slice(0, 9), t: v.slice(9, 12) };
+  }
+  function applyVec(x, y, z, M) { return [x * M[0] + y * M[3] + z * M[6], x * M[1] + y * M[4] + z * M[7], x * M[2] + y * M[5] + z * M[8]]; }
+  function compose(M1, t1, M2, t2) { // primero (M1,t1) luego (M2,t2): v -> (v M1 + t1) M2 + t2
+    const M = new Array(9);
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) M[r * 3 + c] = M1[r * 3] * M2[c] + M1[r * 3 + 1] * M2[3 + c] + M1[r * 3 + 2] * M2[6 + c];
+    const tv = applyVec(t1[0], t1[1], t1[2], M2); return { M, t: [tv[0] + t2[0], tv[1] + t2[1], tv[2] + t2[2]] };
+  }
+  function parseObjects(xml) {
+    const objs = {}; const re = /<object\b([^>]*)>([\s\S]*?)<\/object>/g; let m;
+    while ((m = re.exec(xml))) {
+      const a = attrs(m[1]), body = m[2];
+      if (body.indexOf('<mesh') >= 0) {
+        const V = [], T = []; let q;
+        const rv = /<vertex\b([^>]*)\/>/g; while ((q = rv.exec(body))) { const b = attrs(q[1]); V.push(+b.x, +b.y, +b.z); }
+        const rt = /<triangle\b([^>]*)\/>/g; while ((q = rt.exec(body))) { const b = attrs(q[1]); T.push(+b.v1, +b.v2, +b.v3); }
+        objs[a.id] = { mesh: { V: Float64Array.from(V), T: Int32Array.from(T) } };
+      } else {
+        const comps = []; const rc = /<component\b([^>]*)\/>/g; let q;
+        while ((q = rc.exec(body))) { const b = attrs(q[1]); comps.push({ path: b['p:path'] || '', id: b.objectid, tr: parseTransform(b.transform) }); }
+        objs[a.id] = { comps };
+      }
+    }
+    return objs;
+  }
+
+  function loadItems(files) {
+    const td = new TextDecoder();
+    const mainXml = td.decode(files['3D/3dmodel.model']);
+    const cache = { '': parseObjects(mainXml) };
+    const objsOf = path => {
+      if (!(path in cache)) { const f = files[path.replace(/^\//, '')]; if (!f) throw new Error('Falta ' + path); cache[path] = parseObjects(td.decode(f)); }
+      return cache[path];
+    };
+    const names = {};
+    if (files['Metadata/model_settings.config']) {
+      const cfg = td.decode(files['Metadata/model_settings.config']); const re = /<object\s+id="(\d+)"[^>]*>\s*<metadata\s+key="name"\s+value="([^"]*)"/g; let m;
+      while ((m = re.exec(cfg))) names[m[1]] = m[2];
+    }
+    function collect(path, id, M, t) {
+      const o = objsOf(path)[id]; if (!o) throw new Error('Objeto ' + id + ' no encontrado');
+      if (o.mesh) {
+        const n = o.mesh.V.length / 3, V = new Float64Array(o.mesh.V.length);
+        for (let i = 0; i < n; i++) { const p = applyVec(o.mesh.V[3 * i], o.mesh.V[3 * i + 1], o.mesh.V[3 * i + 2], M); V[3 * i] = p[0] + t[0]; V[3 * i + 1] = p[1] + t[1]; V[3 * i + 2] = p[2] + t[2]; }
+        return [{ V, T: o.mesh.T }];
+      }
+      let out = [];
+      for (const c of o.comps) { const r = compose(c.tr.M, c.tr.t, M, t); out = out.concat(collect(c.path || path, c.id, r.M, r.t)); }
+      return out;
+    }
+    const buildBlock = (mainXml.match(/<build\b[\s\S]*?<\/build>|<build\b[^>]*\/>/) || [''])[0];
+    const items = []; const re = /<item\b([^>]*)\/>/g; let m;
+    while ((m = re.exec(buildBlock))) {
+      const a = attrs(m[1]), tr = parseTransform(a.transform);
+      const parts = collect('', a.objectid, tr.M, tr.t);
+      let nv = 0, nt = 0; for (const p of parts) { nv += p.V.length; nt += p.T.length; }
+      const V = new Float64Array(nv), T = new Int32Array(nt); let ov = 0, ot = 0;
+      for (const p of parts) { V.set(p.V, ov); for (let i = 0; i < p.T.length; i++) T[ot + i] = p.T[i] + ov / 3; ov += p.V.length; ot += p.T.length; }
+      items.push({ name: names[a.objectid] || 'Texto', V, T });
+    }
+    return items;
+  }
+
+  // ------------------------------------------------------------ geometría 2D
+  function area2(P) { let s = 0; const n = P.length / 2; for (let i = 0; i < n; i++) { const j = (i + 1) % n; s += P[2 * i] * P[2 * j + 1] - P[2 * j] * P[2 * i + 1]; } return s; }
+
+  function rasterize(V, T, x0, y0, pad, W, H) {
+    const m = new Uint8Array(W * H);
+    for (let t = 0; t < T.length; t += 3) {
+      const a = T[t], b = T[t + 1], c = T[t + 2];
+      const ax = (V[3 * a] - x0) / RES + pad, ay = (V[3 * a + 1] - y0) / RES + pad;
+      const bx = (V[3 * b] - x0) / RES + pad, by = (V[3 * b + 1] - y0) / RES + pad;
+      const cx = (V[3 * c] - x0) / RES + pad, cy = (V[3 * c + 1] - y0) / RES + pad;
+      const ymin = Math.max(0, Math.ceil(Math.min(ay, by, cy) - 0.5)), ymax = Math.min(H - 1, Math.floor(Math.max(ay, by, cy) - 0.5));
+      for (let r = ymin; r <= ymax; r++) {
+        const yy = r + 0.5; let lo = Infinity, hi = -Infinity;
+        const E = [[ax, ay, bx, by], [bx, by, cx, cy], [cx, cy, ax, ay]];
+        for (const [x1, y1, x2, y2] of E) {
+          if ((y1 <= yy && y2 > yy) || (y2 <= yy && y1 > yy)) { const x = x1 + (yy - y1) * (x2 - x1) / (y2 - y1); if (x < lo) lo = x; if (x > hi) hi = x; }
+        }
+        if (lo > hi) continue;
+        const cs = Math.max(0, Math.ceil(lo - 0.5)), ce = Math.min(W - 1, Math.floor(hi - 0.5));
+        for (let q = cs; q <= ce; q++) m[r * W + q] = 1;
+      }
+    }
+    return m;
+  }
+
+  // distancia (px) hasta el pixel "feature" (feat[i]==1) más cercano
+  function edt(feat, W, H) {
+    const INF = 1e20, f = new Float64Array(W * H);
+    for (let i = 0; i < f.length; i++) f[i] = feat[i] ? 0 : INF;
+    const n = Math.max(W, H), v = new Int32Array(n), z = new Float64Array(n + 1), buf = new Float64Array(n), out = new Float64Array(n);
+    function dt1(len) {
+      let k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
+      for (let q = 1; q < len; q++) {
+        let s = ((buf[q] + q * q) - (buf[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+        while (s <= z[k]) { k--; s = ((buf[q] + q * q) - (buf[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]); }
+        k++; v[k] = q; z[k] = s; z[k + 1] = INF;
+      }
+      k = 0;
+      for (let q = 0; q < len; q++) { while (z[k + 1] < q) k++; const d = q - v[k]; out[q] = d * d + buf[v[k]]; }
+    }
+    for (let x = 0; x < W; x++) { for (let y = 0; y < H; y++) buf[y] = f[y * W + x]; dt1(H); for (let y = 0; y < H; y++) f[y * W + x] = out[y]; }
+    for (let y = 0; y < H; y++) { for (let x = 0; x < W; x++) buf[x] = f[y * W + x]; dt1(W); for (let x = 0; x < W; x++) f[y * W + x] = out[x]; }
+    for (let i = 0; i < f.length; i++) f[i] = Math.sqrt(f[i]);
+    return f;
+  }
+
+  function gaussian(g, W, H, sigma) {
+    const rad = Math.ceil(3 * sigma), k = new Float32Array(2 * rad + 1); let s = 0;
+    for (let i = -rad; i <= rad; i++) { k[i + rad] = Math.exp(-(i * i) / (2 * sigma * sigma)); s += k[i + rad]; }
+    for (let i = 0; i < k.length; i++) k[i] /= s;
+    const tmp = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { let a = 0; for (let i = -rad; i <= rad; i++) { const xx = Math.min(W - 1, Math.max(0, x + i)); a += g[y * W + xx] * k[i + rad]; } tmp[y * W + x] = a; }
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { let a = 0; for (let i = -rad; i <= rad; i++) { const yy = Math.min(H - 1, Math.max(0, y + i)); a += tmp[yy * W + x] * k[i + rad]; } g[y * W + x] = a; }
+  }
+
+  function fillHoles(b, W, H) { // devuelve máscara de "fondo exterior" alcanzable desde el borde
+    const outside = new Uint8Array(W * H), stack = [];
+    const push = i => { if (!b[i] && !outside[i]) { outside[i] = 1; stack.push(i); } };
+    for (let x = 0; x < W; x++) { push(x); push((H - 1) * W + x); } for (let y = 0; y < H; y++) { push(y * W); push(y * W + W - 1); }
+    while (stack.length) { const i = stack.pop(), x = i % W, y = (i / W) | 0; if (x > 0) push(i - 1); if (x < W - 1) push(i + 1); if (y > 0) push(i - W); if (y < H - 1) push(i + W); }
+    return outside;
+  }
+
+  function marching(g, W, H) { // nivel 0; devuelve lazos cerrados [[x,y,...],...] en índices de pixel
+    const segs = new Map(); // edge id -> [edge id vecino,...]
+    const eid = (r, c, kind) => (r * W + c) * 2 + kind; // kind 0: horizontal (r,c)-(r,c+1); 1: vertical (r,c)-(r+1,c)
+    const link = (a, b) => { if (!segs.has(a)) segs.set(a, []); if (!segs.has(b)) segs.set(b, []); segs.get(a).push(b); segs.get(b).push(a); };
+    for (let r = 0; r < H - 1; r++) for (let c = 0; c < W - 1; c++) {
+      const v00 = g[r * W + c], v10 = g[r * W + c + 1], v01 = g[(r + 1) * W + c], v11 = g[(r + 1) * W + c + 1];
+      const i00 = v00 > 0, i10 = v10 > 0, i01 = v01 > 0, i11 = v11 > 0;
+      const code = (i00 ? 1 : 0) | (i10 ? 2 : 0) | (i11 ? 4 : 0) | (i01 ? 8 : 0);
+      if (code === 0 || code === 15) continue;
+      const top = eid(r, c, 0), bot = eid(r + 1, c, 0), left = eid(r, c, 1), right = eid(r, c + 1, 1);
+      switch (code) {
+        case 1: case 14: link(left, top); break;
+        case 2: case 13: link(top, right); break;
+        case 3: case 12: link(left, right); break;
+        case 4: case 11: link(right, bot); break;
+        case 6: case 9: link(top, bot); break;
+        case 7: case 8: link(left, bot); break;
+        case 5: case 10: { const center = (v00 + v10 + v01 + v11) / 4 > 0;
+          if ((code === 5) === center) { link(left, bot); link(top, right); } else { link(left, top); link(right, bot); } break; }
+      }
+    }
+    const pos = id => {
+      const kind = id & 1, cell = id >> 1, r = (cell / W) | 0, c = cell % W;
+      if (kind === 0) { const a = g[r * W + c], b = g[r * W + c + 1]; return [c + a / (a - b), r]; }
+      const a = g[r * W + c], b = g[(r + 1) * W + c]; return [c, r + a / (a - b)];
+    };
+    const seen = new Set(), loops = [];
+    for (const [start, nb] of segs) {
+      if (seen.has(start)) continue;
+      const pts = []; let prev = -1, cur = start;
+      for (;;) {
+        seen.add(cur); const p = pos(cur); pts.push(p[0], p[1]);
+        const ns = segs.get(cur); let next = ns[0] === prev && ns.length > 1 ? ns[1] : ns[0];
+        prev = cur; cur = next; if (cur === start || seen.has(cur)) break;
+      }
+      if (pts.length >= 12) loops.push(pts);
+    }
+    return loops;
+  }
+
+  function douglasPeucker(P, tol) { // P: [x,y,...] polilínea abierta
+    const n = P.length / 2, keep = new Uint8Array(n); keep[0] = keep[n - 1] = 1; const st = [[0, n - 1]];
+    while (st.length) {
+      const [a, b] = st.pop(); if (b <= a + 1) continue;
+      const ax = P[2 * a], ay = P[2 * a + 1], dx = P[2 * b] - ax, dy = P[2 * b + 1] - ay, L = Math.hypot(dx, dy); let best = -1, bi = -1;
+      for (let i = a + 1; i < b; i++) { const d = L < 1e-12 ? Math.hypot(P[2 * i] - ax, P[2 * i + 1] - ay) : Math.abs(dx * (P[2 * i + 1] - ay) - dy * (P[2 * i] - ax)) / L; if (d > best) { best = d; bi = i; } }
+      if (best > tol) { keep[bi] = 1; st.push([a, bi], [bi, b]); }
+    }
+    const out = []; for (let i = 0; i < n; i++) if (keep[i]) out.push(P[2 * i], P[2 * i + 1]); return out;
+  }
+
+  function earClip(P) { // P plano [x,y,...], polígono simple CCW
+    const n = P.length / 2, prv = new Int32Array(n), nxt = new Int32Array(n);
+    for (let i = 0; i < n; i++) { prv[i] = (i - 1 + n) % n; nxt[i] = (i + 1) % n; }
+    const cross = (a, b, c) => (P[2 * b] - P[2 * a]) * (P[2 * c + 1] - P[2 * a + 1]) - (P[2 * b + 1] - P[2 * a + 1]) * (P[2 * c] - P[2 * a]);
+    const convex = i => cross(prv[i], i, nxt[i]) >= 0;
+    const inside = (a, b, c, q) => cross(a, b, q) > 1e-12 && cross(b, c, q) > 1e-12 && cross(c, a, q) > 1e-12;
+    const reflex = new Set(); for (let i = 0; i < n; i++) if (!convex(i)) reflex.add(i);
+    const isEar = i => { if (reflex.has(i)) return false; const a = prv[i], c = nxt[i]; for (const r of reflex) { if (r === a || r === c || r === i) continue; if (inside(a, i, c, r)) return false; } return true; };
+    const ear = new Int8Array(n); for (let i = 0; i < n; i++) ear[i] = isEar(i) ? 1 : 0;
+    const alive = new Uint8Array(n).fill(1), tris = []; let remaining = n, cur = 0, guard = 0;
+    while (remaining > 3) {
+      let found = -1, j = cur, cnt = 0;
+      while (cnt < remaining) { if (ear[j]) { found = j; break; } j = nxt[j]; cnt++; }
+      if (found < 0) { if (++guard > 5) throw new Error('No pude triangular el contorno.'); for (let i = 0; i < n; i++) if (alive[i]) ear[i] = isEar(i) ? 1 : 0; continue; }
+      j = found; const a = prv[j], c = nxt[j]; tris.push(a, j, c);
+      nxt[a] = c; prv[c] = a; alive[j] = 0; reflex.delete(j); remaining--;
+      for (const k of [a, c]) { if (convex(k)) reflex.delete(k); else reflex.add(k); }
+      for (const k of [a, c]) ear[k] = isEar(k) ? 1 : 0;
+      cur = a;
+    }
+    const a = cur, b = nxt[a], c = nxt[b]; tris.push(a, b, c); return tris;
+  }
+
+  function outlineLoops(V, margen, cierre, suavizado, T) {
+    const pad = Math.floor((margen + cierre + 2) / RES);
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (let i = 0; i < V.length; i += 3) { x0 = Math.min(x0, V[i]); x1 = Math.max(x1, V[i]); y0 = Math.min(y0, V[i + 1]); y1 = Math.max(y1, V[i + 1]); }
+    const W = Math.floor((x1 - x0) / RES) + 2 * pad, H = Math.floor((y1 - y0) / RES) + 2 * pad;
+    const m = rasterize(V, T, x0, y0, pad, W, H), R = margen + cierre;
+    const dist = edt(m, W, H), dil = new Uint8Array(W * H);
+    for (let i = 0; i < dil.length; i++) dil[i] = dist[i] * RES <= R ? 1 : 0;
+    const bgFeat = new Uint8Array(W * H); for (let i = 0; i < bgFeat.length; i++) bgFeat[i] = dil[i] ? 0 : 1;
+    const d2 = edt(bgFeat, W, H), g = new Float32Array(W * H), b = new Uint8Array(W * H);
+    for (let i = 0; i < g.length; i++) { g[i] = d2[i] * RES - cierre; b[i] = g[i] > 0 ? 1 : 0; }
+    const outside = fillHoles(b, W, H);
+    for (let i = 0; i < g.length; i++) if (!outside[i] && !b[i]) g[i] = 0.5;
+    gaussian(g, W, H, suavizado / RES);
+    const loops = [];
+    for (const L of marching(g, W, H)) {
+      const P = new Array(L.length);
+      for (let i = 0; i < L.length; i += 2) { P[i] = (L[i] - pad) * RES + x0; P[i + 1] = (L[i + 1] - pad) * RES + y0; }
+      if (Math.abs(area2(P)) / 2 > 5) loops.push(P);
+    }
+    return loops;
+  }
+
+  function buildBase(V, T, margen, cierre, espesor, log) {
+    let c = cierre, loops = [];
+    for (let k = 0; k < 6; k++) { loops = outlineLoops(V, margen, c, 0.25, T); if (loops.length === 1) break; c += 0.5; }
+    if (loops.length !== 1 && log) log('AVISO: la base quedó en ' + loops.length + ' trozos (el texto está muy separado).');
+    const Vs = [], Ts = []; let off = 0; const outlines = [];
+    for (let L of loops) {
+      let P = douglasPeucker(L.concat([L[0], L[1]]), 0.01); P = P.slice(0, P.length - 2);
+      if (area2(P) < 0) { const R = []; for (let i = P.length / 2 - 1; i >= 0; i--) R.push(P[2 * i], P[2 * i + 1]); P = R; }
+      outlines.push(P);
+      const tr = earClip(P), n = P.length / 2;
+      for (let i = 0; i < n; i++) Vs.push(P[2 * i], P[2 * i + 1], 0);
+      for (let i = 0; i < n; i++) Vs.push(P[2 * i], P[2 * i + 1], espesor);
+      for (let t = 0; t < tr.length; t += 3) { const a = tr[t], b = tr[t + 1], cc = tr[t + 2]; Ts.push(off + n + a, off + n + b, off + n + cc, off + a, off + cc, off + b); }
+      for (let i = 0; i < n; i++) { const j = (i + 1) % n; Ts.push(off + i, off + j, off + n + j, off + i, off + n + j, off + n + i); }
+      off += 2 * n;
+    }
+    return { V: Float64Array.from(Vs), T: Int32Array.from(Ts), outlines, cierreUsado: c };
+  }
+
+  // ------------------------------------------------------------ escritura 3MF
+  function meshFile(V, T, oid, uuid) {
+    const L = ['<?xml version="1.0" encoding="UTF-8"?>',
+      '<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:BambuStudio="http://schemas.bambulab.com/package/2021" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06" requiredextensions="p">',
+      ' <metadata name="BambuStudio:3mfVersion">1</metadata>', ' <resources>', `  <object id="${oid}" p:UUID="${uuid}" type="model">`, '   <mesh>', '    <vertices>'];
+    for (let i = 0; i < V.length; i += 3) L.push(`     <vertex x="${V[i].toFixed(5)}" y="${V[i + 1].toFixed(5)}" z="${V[i + 2].toFixed(5)}"/>`);
+    L.push('    </vertices>', '    <triangles>');
+    for (let i = 0; i < T.length; i += 3) L.push(`     <triangle v1="${T[i]}" v2="${T[i + 1]}" v3="${T[i + 2]}"/>`);
+    L.push('    </triangles>', '   </mesh>', '  </object>', ' </resources>', ' <build/>', '</model>');
+    return L.join('\n');
+  }
+  const esc = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+  async function process(buf, opts, log) {
+    log = log || (() => {});
+    const o = Object.assign({ margen: 1.0, cierre: 2.6, base: 0.6, relieve: 1.6, filBase: 1, filLetras: 2 }, opts || {});
+    const files = await readZip(buf);
+    if (!files['3D/3dmodel.model']) throw new Error('No encontré 3D/3dmodel.model: ¿es un 3MF?');
+    const items = loadItems(files);
+    if (!items.length) throw new Error('No encontré objetos en el 3MF.');
+    const te = new TextEncoder(), outFiles = {}, mains = [], build = [], rels = [], setobj = [], inst = [], asm = [], info = [], previews = [];
+    let oid = 1, k = 0;
+    for (const it of items) {
+      k++; log(`Objeto ${k}: ${it.name}`);
+      const V = Float64Array.from(it.V); let zmin = Infinity, zmax = -Infinity;
+      for (let i = 2; i < V.length; i += 3) { zmin = Math.min(zmin, V[i]); zmax = Math.max(zmax, V[i]); }
+      const zr = zmax - zmin;
+      for (let i = 2; i < V.length; i += 3) V[i] = o.relieve > 0 ? (V[i] - zmin) * (o.relieve / zr) : V[i] - zmin;
+      const bs = buildBase(V, it.T, o.margen, o.cierre, o.base, log);
+      const Vt = Float64Array.from(V); for (let i = 2; i < Vt.length; i += 3) Vt[i] += o.base;
+      let top = 0; for (let i = 2; i < Vt.length; i += 3) top = Math.max(top, Vt[i]);
+      info.push({ nombre: it.name, trianguloBase: bs.T.length / 3, relieve: top - o.base, total: top, cierre: bs.cierreUsado, trozos: bs.outlines.length });
+      previews.push({ outlines: bs.outlines, V, T: it.T });
+      const bid = oid, tid = oid + 1, mid = oid + 2; oid += 3;
+      const pb = `/3D/Objects/Base_${k}.model`, pt = `/3D/Objects/Texto_${k}.model`;
+      outFiles[pb.slice(1)] = te.encode(meshFile(bs.V, bs.T, bid, `0${k}010000-81cb-4c03-9d28-80fed5dfa1dc`));
+      outFiles[pt.slice(1)] = te.encode(meshFile(Vt, it.T, tid, `0${k}020000-81cb-4c03-9d28-80fed5dfa1dc`));
+      rels.push(pb, pt);
+      mains.push(`  <object id="${mid}" p:UUID="0000000${k}-61cb-4c03-9d28-80fed5dfa1dc" type="model">\n   <components>\n    <component p:path="${pb}" objectid="${bid}" p:UUID="0${k}010000-b206-40ff-9872-83e8017abed1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>\n    <component p:path="${pt}" objectid="${tid}" p:UUID="0${k}020000-b206-40ff-9872-83e8017abed1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>\n   </components>\n  </object>`);
+      build.push(`  <item objectid="${mid}" p:UUID="0000000${k}-b1ec-4553-aec9-835e5b724bb4" transform="1 0 0 0 1 0 0 0 1 0 0 0" printable="1"/>`);
+      const mt = '1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1', ms = '<mesh_stat edges_fixed="0" degenerate_facets="0" facets_removed="0" facets_reversed="0" backwards_edges="0"/>';
+      setobj.push(`  <object id="${mid}">\n    <metadata key="name" value="${esc(it.name)}"/>\n    <metadata key="extruder" value="${o.filBase}"/>\n    <part id="${bid}" subtype="normal_part">\n      <metadata key="name" value="Contorno (base)"/>\n      <metadata key="matrix" value="${mt}"/>\n      <metadata key="extruder" value="${o.filBase}"/>\n      ${ms}\n    </part>\n    <part id="${tid}" subtype="normal_part">\n      <metadata key="name" value="Letras"/>\n      <metadata key="matrix" value="${mt}"/>\n      <metadata key="extruder" value="${o.filLetras}"/>\n      ${ms}\n    </part>\n  </object>`);
+      inst.push(`    <model_instance>\n      <metadata key="object_id" value="${mid}"/>\n      <metadata key="instance_id" value="0"/>\n      <metadata key="identify_id" value="${100 + k}"/>\n    </model_instance>`);
+      asm.push(`   <assemble_item object_id="${mid}" instance_id="0" transform="1 0 0 0 1 0 0 0 1 0 0 0" offset="0 0 0" />`);
+    }
+    const mainXml = `<?xml version="1.0" encoding="UTF-8"?>\n<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:BambuStudio="http://schemas.bambulab.com/package/2021" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06" requiredextensions="p">\n <metadata name="Application">BambuStudio-1.4.1.2</metadata>\n <metadata name="BambuStudio:3mfVersion">1</metadata>\n <resources>\n${mains.join('\n')}\n </resources>\n <build p:UUID="2c7c17d8-22b5-4d84-8835-1976022ea369">\n${build.join('\n')}\n </build>\n</model>\n`;
+    const settings = `<?xml version="1.0" encoding="UTF-8"?>\n<config>\n${setobj.join('\n')}\n  <plate>\n    <metadata key="plater_id" value="1"/>\n    <metadata key="plater_name" value=""/>\n    <metadata key="locked" value="false"/>\n${inst.join('\n')}\n  </plate>\n  <assemble>\n${asm.join('\n')}\n  </assemble>\n</config>\n`;
+    const mrels = `<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n${rels.map((p, i) => ` <Relationship Target="${p}" Id="rel-${i + 1}" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>`).join('\n')}\n</Relationships>\n`;
+    const out = {};
+    out['[Content_Types].xml'] = files['[Content_Types].xml'] || te.encode('<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>');
+    out['_rels/.rels'] = te.encode('<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>\n</Relationships>\n');
+    out['3D/3dmodel.model'] = te.encode(mainXml); out['3D/_rels/3dmodel.model.rels'] = te.encode(mrels);
+    Object.assign(out, outFiles); out['Metadata/model_settings.config'] = te.encode(settings);
+    for (const n of Object.keys(files)) if (n.startsWith('Metadata/') && n !== 'Metadata/model_settings.config' && !/\.png$/i.test(n)) out[n] = files[n];
+    return { bytes: writeZip(out), info, previews, options: o };
+  }
+
+  return { process, readZip, writeZip, loadItems };
+})();
+
+
+</script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var buf = null, baseName = 'texto', result = null;
+
+  function status(msg, cls) { var s = $('status'); s.textContent = msg; s.className = 'status' + (cls ? ' ' + cls : ''); }
+  function opts() {
+    var n = function (id) { return parseFloat($(id).value); };
+    return { margen: n('margen'), base: n('base'), relieve: n('relieve'), filBase: Math.round(n('filBase')), filLetras: Math.round(n('filLetras')) };
+  }
+
+  function setFile(f) {
+    if (!f) return;
+    baseName = f.name.replace(/\.[^.]+$/, '') || 'texto';
+    $('fileName').textContent = f.name; $('fileName').hidden = false;
+    $('dropTitle').textContent = 'Archivo cargado'; $('dropSub').textContent = 'Suelta otro para cambiarlo';
+    status('Leyendo archivo…');
+    f.arrayBuffer().then(function (ab) { buf = ab; $('go').disabled = false; run(); })
+      .catch(function () { status('No pude leer el archivo. Prueba de nuevo.', 'err'); });
+  }
+
+  var drop = $('drop'), inp = $('file');
+  drop.addEventListener('click', function () { inp.click(); });
+  drop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inp.click(); } });
+  inp.addEventListener('change', function () { setFile(inp.files[0]); });
+  ['dragenter', 'dragover'].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+  drop.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files[0]; setFile(f); });
+  $('go').addEventListener('click', run);
+
+  function run() {
+    if (!buf) return;
+    var o = opts();
+    if (!(o.margen > 0) || !(o.base > 0) || !(o.relieve >= 0)) { status('Revisa los ajustes: hay un valor vacío o inválido.', 'err'); return; }
+    $('go').disabled = true; status('Calculando el contorno… puede tardar unos segundos.');
+    setTimeout(function () {
+      Core.process(buf, o).then(function (r) {
+        result = r; render(r); $('go').disabled = false;
+        status('Listo. ' + r.info.length + (r.info.length === 1 ? ' objeto procesado.' : ' objetos procesados.'), 'ok');
+      }).catch(function (e) {
+        $('go').disabled = false; $('result').hidden = true;
+        status('No pude procesar el archivo: ' + (e && e.message ? e.message : e), 'err');
+      });
+    }, 30);
+  }
+
+  function render(r) {
+    $('result').hidden = false; $('dlStatus').textContent = ''; $('renameNote').hidden = true;
+    var tb = $('rows'); tb.textContent = '';
+    r.info.forEach(function (it) {
+      var tr = document.createElement('tr');
+      [[it.nombre, ''], [r.options.base.toFixed(1) + ' mm', 'num'], [it.relieve.toFixed(1) + ' mm', 'num'], [it.total.toFixed(1) + ' mm', 'num'], [String(it.trozos), 'num']].forEach(function (c) {
+        var td = document.createElement('td'); td.textContent = c[0]; if (c[1]) td.className = c[1]; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    draw(r);
+  }
+
+  function draw(r) {
+    var cv = $('preview'), ctx = cv.getContext('2d'), cs = getComputedStyle(document.documentElement);
+    var minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9;
+    r.previews.forEach(function (p) { p.outlines.forEach(function (P) { for (var i = 0; i < P.length; i += 2) { minx = Math.min(minx, P[i]); maxx = Math.max(maxx, P[i]); miny = Math.min(miny, P[i + 1]); maxy = Math.max(maxy, P[i + 1]); } }); });
+    var w = maxx - minx, h = maxy - miny, m = 24;
+    var W = 1400, H = Math.max(160, Math.min(900, Math.round((W - 2 * m) * h / w + 2 * m)));
+    cv.width = W; cv.height = H; ctx.clearRect(0, 0, W, H);
+    var s = (W - 2 * m) / w, ox = m, oy = H - m;
+    var X = function (x) { return ox + (x - minx) * s; }, Y = function (y) { return oy - (y - miny) * s; };
+    var baseC = cs.getPropertyValue('--base').trim() || '#f4d9c9', ink = cs.getPropertyValue('--letters').trim() || '#1c2321', line = cs.getPropertyValue('--muted').trim() || '#888';
+    r.previews.forEach(function (p) {
+      p.outlines.forEach(function (P) {
+        ctx.beginPath(); for (var i = 0; i < P.length; i += 2) { if (i === 0) ctx.moveTo(X(P[0]), Y(P[1])); else ctx.lineTo(X(P[i]), Y(P[i + 1])); }
+        ctx.closePath(); ctx.fillStyle = baseC; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = line; ctx.stroke();
+      });
+      ctx.fillStyle = ink; ctx.beginPath();
+      for (var t = 0; t < p.T.length; t += 3) {
+        var a = p.T[t], b = p.T[t + 1], c = p.T[t + 2], V = p.V;
+        // solo caras que miran hacia arriba: si no, las de abajo (sentido contrario) anulan el relleno
+        var cz = (V[3 * b] - V[3 * a]) * (V[3 * c + 1] - V[3 * a + 1]) - (V[3 * b + 1] - V[3 * a + 1]) * (V[3 * c] - V[3 * a]);
+        if (cz <= 0) continue;
+        ctx.moveTo(X(V[3 * a]), Y(V[3 * a + 1])); ctx.lineTo(X(V[3 * b]), Y(V[3 * b + 1])); ctx.lineTo(X(V[3 * c]), Y(V[3 * c + 1])); ctx.closePath();
+      }
+      ctx.fill();
+    });
+  }
+
+  function dlStatus(msg) { $('dlStatus').textContent = msg; }
+  function fallbackAnchor(name) {
+    var url = URL.createObjectURL(new Blob([result.bytes], { type: 'model/3mf' }));
+    var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+  $('dl').addEventListener('click', function () {
+    if (!result) return;
+    var name3 = baseName + '_con_contorno.3mf', nameZip = baseName + '_con_contorno.zip';
+    var usable = (typeof claude !== 'undefined' && claude && claude.use) ? claude.use('downloads') : Promise.resolve(null);
+    usable.then(function (d) {
+      if (!d) { fallbackAnchor(name3); dlStatus('Descarga iniciada.'); return; }
+      return d.save({ filename: name3, data: new Blob([result.bytes]) }).then(function () { dlStatus('Guardado como ' + name3); }, function (err) {
+        if (err && err.code === 'rejected_extension') {
+          return d.save({ filename: nameZip, data: new Blob([result.bytes]) }).then(function () { dlStatus('Guardado como ' + nameZip); $('renameNote').hidden = false; });
+        }
+        throw err;
+      });
+    }).catch(function (err) {
+      var c = err && err.code;
+      dlStatus(c === 'declined' ? 'Descarga cancelada.' : 'No se pudo guardar el archivo' + (c ? ' (' + c + ')' : '') + '. Prueba de nuevo.');
+    });
+  });
+})();
+</script>
+</body>
+</html>
