@@ -298,6 +298,10 @@ svg.i {
   text-align: left;
   cursor: pointer;
 }
+a.menu-item {
+  color: inherit;
+  text-decoration: none;
+}
 .menu-item:hover {
   background: color-mix(in srgb, var(--text) 5%, transparent);
 }

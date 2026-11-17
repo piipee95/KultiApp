@@ -6,7 +6,9 @@ async function test(){
  const dom=boot(),run=s=>dom.window.run(s);
  run(`S.session={user:{id:'u',email:'f@k.cl',user_metadata:{}}};S.workspace={id:'w',role:'editor',name:'Kultiverso Pop'};S.mode='home';render()`);
  // Settings has device appearance; the sidebar opens the profile directly.
- assert.equal(run('[...qa("#accountMenu .menu-item")].map(b=>b.textContent).join("|")'),'Cerrar sesión');
+ assert.equal(run('[...qa("#accountMenu .menu-item")].map(b=>b.textContent).join("|")'),'Contorno 3D para textos|Cerrar sesión');
+ // The 3MF tool opens in another tab, without giving the page access to the app (rel noopener).
+ assert.deepEqual(JSON.parse(run('JSON.stringify((a=>[a.getAttribute("href"),a.target,a.rel])(q("#accountMenu a.menu-item")))')),['herramientas/contorno-3mf/','_blank','noopener']);
  assert.equal(run('q("#accountButton").getAttribute("aria-label")'),'Mi perfil');
  assert.equal(run('!!q("#accountMenu .theme-switch")'),true);
  run('showMoreSheet()');
