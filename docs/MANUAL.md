@@ -28,6 +28,9 @@ Kit de marca, Reportes e Impresoras.
 
 **Mi plata.** Lo primero del Inicio: elige el periodo y verás, con palabras simples, lo que **vendiste**, lo que **te
 pagaron**, lo que **te deben** (hoy), lo que **gastaste** y lo que **te queda** (pagos recibidos menos gastos anotados).
+Desde ahí mismo puedes tocar **Me pagaron** (eliges el pedido que debe y el monto) o **Anotar un gasto**. «Me queda» solo
+cuenta lo que anotas.
+
 **Mi cuota**: anota una cuota con su monto y vencimiento y te dice cuánto te falta con lo que te han pagado; «Ya la pagué»
 la registra como gasto y la quita. La cuota se guarda en el dispositivo.
 
