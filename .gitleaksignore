@@ -1,3 +1,6 @@
 # Fake password used only by the change-password test.
 046bed435e7e6e881628bbf838e91676b22a2188:tests/fixes.test.cjs:generic-api-key:103
 tests/fixes.test.cjs:generic-api-key:103
+
+tests/app-correcciones.test.cjs:generic-api-key:103
+969dc1645a0c2e3b12e5e92c1ec209fe24ae9f0e:tests/app-correcciones.test.cjs:generic-api-key:163

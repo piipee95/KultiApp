@@ -2,22 +2,34 @@
 // «Mi plata» (Inicio): lo vendido, lo cobrado, lo que te deben y lo gastado en palabras simples, y el avance de
 // una cuota por pagar. Reutiliza opsRange/opsTotals (15-operations.js), receivables y los gastos ya cargados.
 const cuotaKey = () => 'kultiapp_cuota:' + (S.workspace?.id || '');
-// The cuota is a personal reminder kept on this device (no database change needed).
+// The cuota is shared through the database (workspace_settings.cuota) so partners see the same one. Where that column
+// does not exist yet it keeps working from this device only (localStorage), so nothing breaks before the update.
+const cuotaInDb = () => !!S.settings && 'cuota' in S.settings;
+const cleanCuota = c =>
+  c && n(c.amount) > 0 ? { name: String(c.name || ''), amount: n(c.amount), due: c.due || '' } : null;
 function loadCuota() {
+  let local = null;
   try {
-    const c = JSON.parse(localStorage.getItem(cuotaKey()));
-    return c && n(c.amount) > 0
-      ? { name: String(c.name || ''), amount: n(c.amount), due: c.due || '' }
-      : null;
-  } catch {
-    return null;
-  }
+    local = cleanCuota(JSON.parse(localStorage.getItem(cuotaKey())));
+  } catch {}
+  return cuotaInDb() ? cleanCuota(S.settings.cuota) || local : local;
 }
 function saveCuota(c) {
+  c = cleanCuota(c);
   try {
     if (c) localStorage.setItem(cuotaKey(), JSON.stringify(c));
     else localStorage.removeItem(cuotaKey());
   } catch {}
+  if (!cuotaInDb() || !S.workspace) return Promise.resolve();
+  S.settings.cuota = c;
+  return supabase
+    .from('workspace_settings')
+    .update({ cuota: c })
+    .eq('workspace_id', S.workspace.id)
+    .then(({ error }) => {
+      if (error) console.warn('No se pudo guardar la cuota en la base de datos', error.message);
+    })
+    .catch(e => console.warn('No se pudo guardar la cuota', e));
 }
 const moneyPeriodWord = range =>
   ({ today: 'hoy', week: 'esta semana', month: 'este mes', year: 'este año' })[range.kind] ||
@@ -187,7 +199,7 @@ function showCuota() {
   });
 }
 // Quick payment: pick the order that still owes money, confirm the amount and save it.
-function showQuickPayment() {
+function showQuickPayment(preselect = null) {
   if (!canEdit()) return;
   const owing = receivables()
     .filter(o => o.status !== 'canceled')
@@ -228,6 +240,10 @@ function showQuickPayment() {
       '</div><div id="qpFeedback" class="small" role="status"></div><div class="dialog-actions"><button class="btn btn-primary" type="submit">Guardar pago</button></div></form>'
   );
   const picked = () => owing.find(o => o.id === q('#qpOrder').value);
+  if (typeof preselect === 'string' && owing.some(o => o.id === preselect)) {
+    q('#qpOrder').value = preselect;
+    q('#qpAmount').value = orderBalance(picked()).due;
+  }
   q('#qpOrder').onchange = () => (q('#qpAmount').value = orderBalance(picked()).due);
   q('#quickPayForm').onsubmit = async e => {
     e.preventDefault();
@@ -242,7 +258,7 @@ function showQuickPayment() {
       await addPayment(order, amount, q('#qpMethod').value, q('#qpDate').value);
       toast('Pago registrado.');
       dialog.close();
-      if (S.mode === 'home') render();
+      if (S.mode === 'home' || S.mode === 'cobrar') render();
     } catch (error) {
       q('#qpFeedback').textContent = error.message;
       btn.disabled = false;
@@ -251,7 +267,7 @@ function showQuickPayment() {
   enhanceFields();
 }
 function bindMoney() {
-  qa('[data-money-paid]').forEach(b => (b.onclick = showQuickPayment));
+  qa('[data-money-paid]').forEach(b => (b.onclick = () => showQuickPayment()));
   qa('[data-money-expense]').forEach(
     b => (b.onclick = () => showExpense({})?.addEventListener('close', () => S.mode === 'home' && render()))
   );

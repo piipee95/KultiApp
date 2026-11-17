@@ -19,7 +19,7 @@ async function test(){
  // Ctrl+K opens the search; empty term shows sections and actions.
  run(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))`);
  assert.ok(run('!!q("#searchDialog")'));
- assert.match(run('q("#searchResults").textContent'),/Ir a.*Cotizaciones.*Clientes.*Acciones.*Nuevo producto/);
+ assert.match(run('q("#searchResults").textContent'),/Ir a.*Cotizaciones.*Cobrar.*Acciones.*Nuevo producto/);
  const groups=t=>JSON.parse(run(`JSON.stringify(searchResults(${JSON.stringify(t)}).map(g=>[g.label,g.items.map(i=>i.title)]))`));
  assert.deepEqual(groups('iron'),[['Productos',['Cuadro Iron Man']],['Cotizaciones',['COT-0007 · Cuadro Iron Man']]]);
  assert.deepEqual(groups('andes'),[['Cotizaciones',['COT-0007 · Cuadro Iron Man']],['Clientes',['Comercial Andes']]]);

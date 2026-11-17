@@ -123,6 +123,7 @@ function render() {
   if (S.mode === 'customers') return customersView();
   if (S.mode === 'reports') return reportsView();
   if (S.mode === 'finance') return financeView();
+  if (S.mode === 'cobrar') return cobrarView();
   if (S.mode === 'inventory') return inventoryView();
   if (S.mode === 'resources') return resourcesView();
   if (S.mode === 'production') return productionView();
@@ -159,6 +160,7 @@ async function goMode(mode) {
     if (mode === 'finance')
       await Promise.all([loadOrders(), loadExpenses(), loadTransfers(), loadResources(), loadProducts()]);
     if (mode === 'home') await Promise.all([loadProducts(), loadOrders(), loadResources(), loadQuotes()]);
+    if (mode === 'cobrar') await Promise.all([loadOrders(), loadCustomers()]);
     render();
   } catch (e) {
     fail(e.message);
@@ -173,6 +175,7 @@ const VIEW_MODES = [
   'customers',
   'reports',
   'finance',
+  'cobrar',
   'inventory',
   'resources',
   'profile',
@@ -195,6 +198,7 @@ const VIEW_SLUGS = {
   customers: 'clientes',
   reports: 'reportes',
   finance: 'finanzas',
+  cobrar: 'cobrar',
   inventory: 'inventario',
   resources: 'impresoras',
   profile: 'perfil',
@@ -574,6 +578,7 @@ const NAV_ITEMS = [
   { mode: 'dashboard', label: 'Productos', icon: 'package' },
   { mode: 'quotes', label: 'Cotizaciones', icon: 'file-text', more: true },
   { mode: 'production', label: 'Pedidos', icon: 'clipboard-list' },
+  { mode: 'cobrar', label: 'Cobrar', icon: 'banknote' },
   { mode: 'customers', label: 'Clientes', icon: 'users' },
   { mode: 'files', label: 'Archivos', icon: 'image', more: true },
   { mode: 'brand', label: 'Kit de marca', icon: 'palette', more: true },
@@ -630,6 +635,7 @@ const PAGE_TITLES = {
   customers: 'Clientes',
   reports: 'Reportes',
   finance: 'Finanzas',
+  cobrar: 'Cobrar',
   inventory: 'Inventario',
   files: 'Archivos de clientes',
   resources: 'Impresoras',
@@ -657,6 +663,8 @@ function navCount(mode) {
   if (mode === 'dashboard') return S.products.filter(p => p.status !== 'archived').length;
   if (mode === 'production')
     return S.orders.filter(o => !['delivered', 'canceled'].includes(o.status)).length;
+  if (mode === 'cobrar')
+    return receivables().filter(o => o.status !== 'canceled' && o.kind !== 'stock').length;
   if (mode === 'quotes') return S.quotes.filter(qt => quoteState(qt) === 'open').length;
   return 0;
 }
@@ -780,7 +788,9 @@ function mountShell() {
   tabs.innerHTML =
     NAV_ITEMS.filter(
       item =>
-        !['resources', 'quotes', 'customers', 'reports', 'files', 'brand', 'finance'].includes(item.mode)
+        !['resources', 'quotes', 'customers', 'reports', 'files', 'brand', 'finance', 'inventory'].includes(
+          item.mode
+        )
     )
       .map(
         item =>
@@ -847,7 +857,9 @@ function showMoreSheet() {
       icon('chart-column') +
       'Reportes</button><button type="button" class="menu-item" data-more="finance">' +
       icon('wallet') +
-      'Finanzas</button><button type="button" class="menu-item" data-more="resources">' +
+      'Finanzas</button><button type="button" class="menu-item" data-more="inventory">' +
+      icon('boxes') +
+      'Inventario</button><button type="button" class="menu-item" data-more="resources">' +
       icon('printer') +
       'Impresoras</button>' +
       (isOwner()
@@ -876,7 +888,8 @@ function showMoreSheet() {
     finance: () => goMode('finance'),
     files: () => goMode('files'),
     brand: () => goMode('brand'),
-    customers: () => goMode('customers')
+    customers: () => goMode('customers'),
+    inventory: () => goMode('inventory')
   };
   dialog.querySelectorAll('[data-more]').forEach(
     b =>

@@ -5,9 +5,9 @@ async function test(){
  const dom=boot(),run=s=>dom.window.run(s),j=s=>JSON.parse(run('JSON.stringify('+s+')'));
  run(`localStorage.clear();S.mode='home';S.navMoreOpen=false;S.sideCollapsed=false;render()`);
  const label=b=>`qa('${b}').map(b=>b.dataset.appMode)`;
- assert.deepEqual(j(label('.app-nav > .nav-item')),['home','dashboard','production','customers','finance','inventory']);
+ assert.deepEqual(j(label('.app-nav > .nav-item')),['home','dashboard','production','cobrar','customers','finance','inventory']);
  assert.deepEqual(j(label('.nav-more-list .nav-item')),['quotes','files','brand','reports','resources']);
- assert.equal(run('qa(".sidebar .nav-item").length'),11);                   // every section is still reachable
+ assert.equal(run('qa(".sidebar .nav-item").length'),12);                   // every section is still reachable
  assert.ok(!run('q(".nav-more").open'));assert.equal(run('q(".nav-more > summary").textContent'),'Más');
  // Opens by itself when you are inside one of the hidden sections, and remembers a manual opening.
  run(`S.mode='reports';render()`);assert.ok(run('q(".nav-more").open'));assert.equal(run('q(".nav-item.active").dataset.appMode'),'reports');
