@@ -1,3 +1,7 @@
+# V5.6 — Cobrar, cuota compartida y CSV
+
+Pantalla Cobrar con recordatorio por WhatsApp, cuota guardada en la base (columna opcional) y descargas CSV. Ver `versiones/V5_6.md`.
+
 # V5.5.3 — Palabras más simples
 
 «Utilidad» y «margen» pasan a «ganancia» y «% de ganancia» en toda la app (sin cambiar los cálculos). Ver `versiones/V5_5_3.md`.

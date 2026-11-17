@@ -49,6 +49,9 @@ async function test() {
     `S.workspace.role='owner';S.payments.push({id:'c',order_id:'o1',amount:15000,paid_on:'${today}',created_at:'${at(today)}'},{id:'d',order_id:'o2',amount:10000,paid_on:'${today}',created_at:'${at(today)}'});render()`
   );
   assert.match(text('.empty-state'), /Todo cobrado/);
+  console.log(
+    'PASS 5.6 Cobrar: deudores del más antiguo al más nuevo, recordatorio por WhatsApp y Me pagaron.'
+  );
 }
 test().catch(e => {
   console.error(e);

@@ -349,7 +349,9 @@ function reportsView() {
       'Reportes',
       '<button class="btn btn-secondary" id="exportReport" type="button">' +
         icon('download') +
-        '<span>Excel</span></button>'
+        '<span>Excel</span></button><button class="btn btn-secondary" id="exportCsv" type="button">' +
+        icon('download') +
+        '<span>CSV</span></button>'
     ) +
     '<main class="shell">' +
     '<div class="month-nav"><button type="button" class="btn icon-btn" id="prevMonth" aria-label="Mes anterior">' +
@@ -491,6 +493,7 @@ function reportsView() {
     reportsView();
   };
   q('#exportReport').onclick = () => exportReport(y, m);
+  q('#exportCsv').onclick = () => showCsvExport(y, m);
 }
 async function exportReport(y, m) {
   // Expenses feed the real profit and VAT lines; the report still exports if they can't load.

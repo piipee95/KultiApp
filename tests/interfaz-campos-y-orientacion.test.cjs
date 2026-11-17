@@ -1,7 +1,8 @@
 const assert = require('node:assert/strict');
 const { boot } = require('./boot.cjs');
 
-const dom = boot(), run = code => dom.window.run(code);
+const dom = boot(),
+  run = code => dom.window.run(code);
 // Material rows are inserted after the first field pass. Re-rendering must not link their
 // quantity labels to unrelated cost inputs or leave the IVA percentage unnamed.
 run(`newProduct();
@@ -15,19 +16,28 @@ run(`newProduct();
   window.beforeTotals = JSON.stringify(totals());`);
 for (let pass = 0; pass < 3; pass++) {
   if (pass) run('render()');
-  assert.ok(run(`(() => {
+  assert.ok(
+    run(`(() => {
     const ids = qa('[id]').map(el => el.id);
     return new Set(ids).size === ids.length;
-  })()`), 'Every control keeps a unique ID after dynamic material insertion');
+  })()`),
+    'Every control keeps a unique ID after dynamic material insertion'
+  );
   assert.equal(run(`q('#ivar').labels.length`), 1);
   assert.equal(run(`q('#ivar').labels[0].textContent`), 'IVA %');
   assert.equal(run(`q('#iva').labels.length`), 1);
   assert.equal(run(`q('#iva').labels[0].textContent`), 'Aplicar');
-  assert.ok(run(`qa('.recipeQty').every(input =>
+  assert.ok(
+    run(`qa('.recipeQty').every(input =>
     input.labels.length === 1 && input.labels[0].textContent === 'Cantidad (un)' &&
-    input.labels[0].control === input)`));
+    input.labels[0].control === input)`)
+  );
   run(`qa('[data-editor-tab]').forEach(button => button.click());collect();enhanceFields();`);
-  assert.equal(run('JSON.stringify(totals())'), run('beforeTotals'), 'Tabs and labels preserve all cost results');
+  assert.equal(
+    run('JSON.stringify(totals())'),
+    run('beforeTotals'),
+    'Tabs and labels preserve all cost results'
+  );
 }
 // An empty filter offers the existing All action; a search or truly empty account does not
 // promise to recover results by changing a status filter alone.
@@ -51,8 +61,13 @@ run(`S.customers=[{id:'c1',name:'Cliente de prueba',phone:'+56 9 1234 5678'}];
   mountCustomerNotify(order,q('#exampleOrder'));`);
 assert.equal(run(`q('.notify-message').open`), false);
 assert.equal(run(`q('.notify-preview').textContent`), run('statusMessage(order)'));
-assert.equal(run(`q('#notifySend').getAttribute('href')`), run(`waUrl(S.customers[0].phone,statusMessage(order))`));
+assert.equal(
+  run(`q('#notifySend').getAttribute('href')`),
+  run(`waUrl(S.customers[0].phone,statusMessage(order))`)
+);
 run(`q('.notify-message').open=true`);
 assert.equal(run(`q('.notify-preview').textContent`), run('statusMessage(order)'));
 dom.window.close();
-console.log('PASS interfaz: etiquetas e IDs únicos con materiales dinámicos, IVA separado, cálculos intactos, salida de filtro vacío y mensaje de WhatsApp sin cambios.');
+console.log(
+  'PASS interfaz: etiquetas e IDs únicos con materiales dinámicos, IVA separado, cálculos intactos, salida de filtro vacío y mensaje de WhatsApp sin cambios.'
+);

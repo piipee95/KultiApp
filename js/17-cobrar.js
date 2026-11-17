@@ -62,7 +62,14 @@ function cobrarView() {
     total = rows.reduce((s, r) => s + r.b.due, 0),
     oldest = rows[0];
   root.innerHTML =
-    header('Cobrar') +
+    header(
+      'Cobrar',
+      rows.length
+        ? '<button class="btn btn-secondary" id="cobrarCsv" type="button">' +
+            icon('download') +
+            '<span>CSV</span></button>'
+        : ''
+    ) +
     '<main class="shell cobrar">' +
     (rows.length
       ? '<section class="panel money-left"><span>Te deben</span><b>' +
@@ -80,5 +87,12 @@ function cobrarView() {
   bindCobrar();
 }
 function bindCobrar() {
+  q('#cobrarCsv')?.addEventListener('click', () => {
+    const now = new Date();
+    downloadBlob(
+      csvBlob(csvSets(now.getFullYear(), now.getMonth()).deben.rows()),
+      csvFileName('deben', 0, 0)
+    );
+  });
   qa('[data-cobrar-pay]').forEach(b => (b.onclick = () => showQuickPayment(b.dataset.cobrarPay)));
 }
