@@ -704,7 +704,10 @@ function accountMenuItems() {
       : '') +
     (isOwner()
       ? '<button type="button" class="menu-item" id="invite">' + icon('user-plus') + 'Invitar socio</button>'
-      : '')
+      : '') +
+    '<a class="menu-item" href="herramientas/contorno-3mf/" target="_blank" rel="noopener">' +
+    icon('layout-grid') +
+    'Contorno 3D para textos</a>'
   );
 }
 // Desktop sidebar: full or icons only, remembered on this device.
