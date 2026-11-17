@@ -1,3 +1,7 @@
+# V5.5.2 — Contorno 3D en el menú
+
+Acceso en Configuración a la herramienta de contorno 3D para textos (.3mf). Sin cambios en la base de datos. Ver `versiones/V5_5_2.md`.
+
 # V5.4.0 — Desgaste por hora
 
 Costo por desgaste/hora con tarifa por impresora y copia por impresión; pruebas locales aprobadas. Migración aplicada y verificada sin alterar costos históricos. Ver `versiones/V5_4_0.md`.
