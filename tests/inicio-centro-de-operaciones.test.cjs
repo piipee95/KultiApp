@@ -27,8 +27,8 @@ async function test(){
  assert.equal(m.madeUnits,5);assert.equal(m.madeCost,3000);                                            // stock fabrication is not a sale
  const kpis=run('q(".ops-kpis").textContent');
  assert.match(kpis,/Ventas\$29\.000\$29 mil2 pedidos190% vs \w+/);assert.match(kpis,/Cobros\$9\.000\$9\.0001 pago125% vs \w+/);
- assert.match(kpis,/Costo de fabricación\$12\.500\$13 mil1 real · 1 estimado108% vs \w+/);assert.match(kpis,/Utilidad \(real \+ estimada\)\$16\.500\$17 mil/);
- assert.match(kpis,/Margen 57% · recargo 132%/);assert.match(kpis,/Real \$4\.500 · estimada \$12 mil/);
+ assert.match(kpis,/Costo de fabricación\$12\.500\$13 mil1 real · 1 estimado108% vs \w+/);assert.match(kpis,/Ganancia \(real \+ estimada\)\$16\.500\$17 mil/);
+ assert.match(kpis,/57% de ganancia · 132% sobre el costo/);assert.match(kpis,/Real \$4\.500 · estimada \$12 mil/);
  assert.equal(run('opsSigned(-374)'),'-$374');assert.equal(run('q(".ops-col").querySelectorAll("i")[0].getAttribute("style")'),'height:0;min-height:0');assert.match(run('q(".ops-kpis").textContent'),/Real \$4\.500/);
  // Variation: compared with the same elapsed span of the previous month (the +190% above is 29.000 vs 10.000).
  // Existing stock/inventory indicators still live in their own row.

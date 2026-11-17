@@ -1,3 +1,7 @@
+# V5.5.3 — Palabras más simples
+
+«Utilidad» y «margen» pasan a «ganancia» y «% de ganancia» en toda la app (sin cambiar los cálculos). Ver `versiones/V5_5_3.md`.
+
 # V5.4.0 — Desgaste por hora
 
 Costo por desgaste/hora con tarifa por impresora y copia por impresión; pruebas locales aprobadas. Migración aplicada y verificada sin alterar costos históricos. Ver `versiones/V5_4_0.md`.

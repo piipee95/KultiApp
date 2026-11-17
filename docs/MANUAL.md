@@ -37,8 +37,8 @@ la registra como gasto y la quita. La cuota se guarda en el dispositivo.
 **Más detalle** (plegado). Elige el periodo (Hoy, Semana, Mes, Año o Rango de fechas):
 
 - **Ventas**: pedidos de clientes creados en el periodo, con IVA. **Cobros**: pagos recibidos en el periodo.
-  **Costo de fabricación**: el real del pedido si ya lo registraste, si no el estimado. **Utilidad**: real, estimada o
-  mezcla (se indica), con **margen** (sobre la venta neta) y **recargo** (sobre el costo).
+  **Costo de fabricación**: el real del pedido si ya lo registraste, si no el estimado. **Ganancia**: real, estimada o
+  mezcla (se indica), con su **% de ganancia** (sobre la venta sin IVA) y cuánto ganas **sobre el costo**.
 - Cada cifra muestra la variación contra el periodo anterior de igual duración y abre Reportes o Finanzas al tocarla.
 - **Ventas y cobros**: gráfico por día o por mes. **Pedidos y fabricación**: pendientes, en fabricación, listos para
   entregar, enviados y atrasados; cada recuadro abre la lista filtrada. **Más vendidos** y **Actividad reciente**.
@@ -50,13 +50,13 @@ al mínimo definido). En escritorio, el botón de arriba del menú lateral lo pl
 
 ## Productos
 
-- **Lista o galería**, con pestañas *Activos*, *En stock* y *Archivados*, filtros por margen y orden.
+- **Lista o galería**, con pestañas *Activos*, *En stock* y *Archivados*, filtros por ganancia y orden.
 - **Editor** en cuatro pestañas:
-  - *Detalles*: nombre, descripción, foto, cantidad del lote, IVA, margen objetivo y redondeo.
+  - *Detalles*: nombre, descripción, foto, cantidad del lote, IVA, ganancia que quiero (%) y redondeo.
   - *Impresiones*: cada impresión con tiempo, impresora y hasta siete filamentos del inventario (gramos y purga).
   - *Costos*: costos directos y adicionales, más los **materiales del lote** (insumos del inventario).
   - *Resumen*: costo por unidad, precio recomendado, escenarios (mínimo, promo, recomendado, premium),
-    precio manual y utilidad.
+    precio manual y ganancia.
 - **Stock de producto terminado**: «Fabricar para stock» suma unidades al quedar lista la fabricación;
   «Vender» registra una venta desde stock al precio real acordado; el ajuste corrige la cantidad.
 - **Edición rápida** de precio y stock desde el menú ⋯ de cada producto.
@@ -86,14 +86,14 @@ al mínimo definido). En escritorio, el botón de arriba del menú lateral lo pl
 - Desde un producto o rápida (sin producto). Folio, cliente, vigencia, entrega, condiciones y contacto;
   se ve como documento, PDF o imagen para WhatsApp.
 - Estados: abierta, aceptada, rechazada, vencida. **Convertir en pedido** crea el pedido con su abono.
-- Si se guardó sin costo, su utilidad usa el costo del producto vinculado.
+- Si se guardó sin costo, su ganancia usa el costo del producto vinculado.
 - Si un filtro de estado no tiene cotizaciones, **Ver todas las cotizaciones** vuelve al filtro *Todas*.
 
 ## Pedidos
 
 - **Lista** con filtros (En curso, Atrasados, Por cobrar, Fabricación, por estado, Todos). Arriba aparecen
   los avisos de **revisión** (pedidos que no coinciden con su producto: corregir uno o todos) y de stock bajo.
-- **Ficha del pedido** (página propia): cliente, cantidad, entrega, venta, costo y utilidad; *Pedir fotos*,
+- **Ficha del pedido** (página propia): cliente, cantidad, entrega, venta, costo y ganancia; *Pedir fotos*,
   *Seguimiento* (enlace para el cliente) y *Cotización*; **Avisar al cliente** por WhatsApp con el mensaje del
   estado; **Pagos** (abonos, saldo, recordatorios); **Materiales y stock** (reserva, consumo real, «Usar
   materiales actuales del producto»); **Fotos del trabajo**; estado, entrega, costos reales y notas;
@@ -139,13 +139,13 @@ Consumo eléctrico, horas de uso (suman al terminar pedidos), aviso de mantenci�
 
 ## Reportes
 
-Mes a mes: ventas, utilidad (real o estimada), cobrado, cotizaciones y tasa de cierre, fabricación para stock,
+Mes a mes: ventas, ganancia (real o estimada), cobrado, cotizaciones y tasa de cierre, fabricación para stock,
 por producto y por cliente, costo estimado vs real y gráfico de 6 meses. Exportación a Excel.
 
 ## Finanzas
 
-**Tu dinero hoy** (materia prima, productos fabricados, por cobrar e ingreso proyectado), utilidad real del
-mes (ventas netas − costo de lo vendido − gastos − mermas), punto de equilibrio, **gastos** (con IVA),
+**Tu dinero hoy** (materia prima, productos fabricados, por cobrar e ingreso proyectado), ganancia real del
+mes (ventas netas − lo que costó fabricar lo vendido − gastos − mermas), cuánto vender para cubrir los gastos, **gastos** (con IVA),
 **IVA del mes** y **cuentas entre socios** con transferencias.
 
 ## Mi perfil
@@ -163,7 +163,7 @@ instalar la app y cerrar sesión.
 
 ## Galería y vista previa (V5.3.0)
 
-En Productos, usa el botón de vista para alternar lista y galería. La preferencia permanece en el dispositivo. Toca la foto para consultar costo, precio, margen y stock disponible; Abrir producto lleva a la ficha completa. Cerrar vuelve a la galería. La campana superior reúne los pendientes actuales del taller; el engranaje abre Configuración y el avatar inferior lleva a Mi perfil.
+En Productos, usa el botón de vista para alternar lista y galería. La preferencia permanece en el dispositivo. Toca la foto para consultar costo, precio, ganancia y stock disponible; Abrir producto lleva a la ficha completa. Cerrar vuelve a la galería. La campana superior reúne los pendientes actuales del taller; el engranaje abre Configuración y el avatar inferior lleva a Mi perfil.
 
 
 ## Editor de estudio (V5.3.1)

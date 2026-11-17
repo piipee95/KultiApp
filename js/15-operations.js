@@ -454,10 +454,10 @@ function operationsView(opts = {}) {
     prev = opsTotals(range.prevFrom, range.prevTo),
     label =
       cur.estimatedCount === 0 && cur.count
-        ? 'Utilidad real'
+        ? 'Ganancia real'
         : cur.realCount === 0
-          ? 'Utilidad estimada'
-          : 'Utilidad (real + estimada)',
+          ? 'Ganancia estimada'
+          : 'Ganancia (real + estimada)',
     plural = (k, one, many) => k + (k === 1 ? one : many);
   return (
     (opts.bar === false ? '' : opsPeriodBar(range)) +
@@ -506,7 +506,9 @@ function operationsView(opts = {}) {
       '<span class="muted">' +
         (cur.margin == null
           ? 'Sin ventas'
-          : 'Margen ' + pct(cur.margin) + (cur.markup == null ? '' : ' · recargo ' + pct(cur.markup))) +
+          : pct(cur.margin) +
+            ' de ganancia' +
+            (cur.markup == null ? '' : ' · ' + pct(cur.markup) + ' sobre el costo')) +
         '</span>' +
         (cur.realCount && cur.estimatedCount
           ? '<span class="muted">Real ' +
@@ -520,7 +522,7 @@ function operationsView(opts = {}) {
     ) +
     '</div><details class="ops-help"><summary>' +
     icon('info') +
-    '¿Cómo se calcula?</summary><p class="small muted"><b>Ventas</b>: pedidos de clientes creados en el periodo, con IVA. <b>Cobros</b>: pagos recibidos en el periodo, sean de pedidos de este u otros periodos. <b>Costo</b>: el real del pedido si ya lo registraste y, si no, el estimado. <b>Margen</b>: utilidad sobre la venta neta; <b>recargo</b>: utilidad sobre el costo. Las cancelaciones y la fabricación para stock no cuentan como venta' +
+    '¿Cómo se calcula?</summary><p class="small muted"><b>Ventas</b>: pedidos de clientes creados en el periodo, con IVA. <b>Cobros</b>: pagos recibidos en el periodo, sean de pedidos de este u otros periodos. <b>Costo</b>: el real del pedido si ya lo registraste y, si no, el estimado. <b>Ganancia</b>: lo que queda de la venta sin IVA después de pagar el costo. <b>% de ganancia</b>: cuánto de cada $100 de venta (sin IVA) es ganancia; <b>sobre el costo</b>: cuánto ganas por cada $100 que te costó fabricar. Las cancelaciones y la fabricación para stock no cuentan como venta' +
     (cur.madeUnits
       ? ' (en el periodo se fabricaron ' + cur.madeUnits + ' un. para stock por ' + clp(cur.madeCost) + ')'
       : '') +

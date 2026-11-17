@@ -248,7 +248,7 @@ function showFailure(order = null) {
       '</div><label class="check-row" id="faDeductRow" hidden><input type="checkbox" id="faDeduct" checked> <span><b>Descontar el filamento del inventario</b><span class="small muted">Se registra como merma del material elegido.</span></span></label>' +
       '<div class="field"><label for="faNote">Nota (opcional)</label><input id="faNote" maxlength="500" placeholder="Qué pasó y qué se cambió"></div>' +
       (order
-        ? '<p class="small muted">El costo se suma a «fallas» del pedido y descuenta su utilidad real.</p>'
+        ? '<p class="small muted">El costo se suma a «fallas» del pedido y descuenta lo que ganaste de verdad.</p>'
         : '') +
       '<div id="faFeedback" class="small" role="status"></div><button class="btn btn-primary" type="submit">Registrar falla</button></form>'
   );

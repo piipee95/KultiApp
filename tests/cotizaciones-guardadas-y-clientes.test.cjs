@@ -58,7 +58,7 @@ async function test() {
   assert.match(run('q(".summary-strip").textContent'), /Abiertas\s*1/);
   // Accepting creates the order with quoted price, customer and stock option, and links it back.
   run(`q('[data-quote]').click()`);
-  assert.match(run('q("#savedQuoteDialog").textContent'), /Utilidad estimada/);
+  assert.match(run('q("#savedQuoteDialog").textContent'), /Ganancia estimada/);
   run(`q('#acceptQuote').click()`);
   assert.ok(run('!!q("#qoFromStock")'));
   run(`goMode=async m=>{S.mode=m};q('#qoFromStock').checked=true;q('#quoteOrderForm').requestSubmit()`);
