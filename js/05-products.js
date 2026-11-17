@@ -56,7 +56,7 @@ function productMetrics(p) {
     (t.unit > 0 ? clp(t.unit) : '—') +
     '</dd></div><div><dt>Precio final</dt><dd>' +
     (t.unit > 0 || p.sale_price != null ? clp(t.price) : '—') +
-    '</dd></div><div><dt>Margen</dt><dd>' +
+    '</dd></div><div><dt>Ganancia</dt><dd>' +
     (t.margin == null ? '—' : pct(t.margin)) +
     '</dd></div><div><dt>Disponible</dt><dd>' +
     s.available +
@@ -238,13 +238,13 @@ function dashboard() {
     (S.productView === 'grid' ? 'Ver como lista' : 'Ver como galería') +
     '">' +
     icon(S.productView === 'grid' ? 'list' : 'layout-grid') +
-    '</button><select id="profitFilter" class="select-compact" aria-label="Rentabilidad"><option value="all">Margen: todos</option><option value="positive">Sin pérdida</option><option value="loss">Con pérdida</option><option value="uncosted">Sin costos registrados</option></select><select id="productSort" class="select-compact" aria-label="Ordenar"><option value="recent">Más recientes</option><option value="name">Nombre A–Z</option><option value="price">Precio mayor a menor</option><option value="cost">Costo mayor a menor</option><option value="margin">Margen mayor a menor</option></select></div><div class="product-workspace' +
+    '</button><select id="profitFilter" class="select-compact" aria-label="Rentabilidad"><option value="all">Ganancia: todos</option><option value="positive">Sin pérdida</option><option value="loss">Con pérdida</option><option value="uncosted">Sin costos registrados</option></select><select id="productSort" class="select-compact" aria-label="Ordenar"><option value="recent">Más recientes</option><option value="name">Nombre A–Z</option><option value="price">Precio mayor a menor</option><option value="cost">Costo mayor a menor</option><option value="margin">Margen mayor a menor</option></select></div><div class="product-workspace' +
     (preview ? ' has-preview' : '') +
     '"><section class="panel product-panel">' +
     (rows.length
       ? S.productView === 'grid'
         ? productGrid(rows)
-        : '<table class="data-table products-table"><thead><tr><th>Producto</th><th class="r">Costo unit.</th><th class="r">Precio final</th><th>Margen</th><th class="r">Stock</th><th>Actualizado</th><th></th></tr></thead><tbody>' +
+        : '<table class="data-table products-table"><thead><tr><th>Producto</th><th class="r">Costo unit.</th><th class="r">Precio final</th><th>Ganancia</th><th class="r">Stock</th><th>Actualizado</th><th></th></tr></thead><tbody>' +
           rows
             .map(
               p =>
@@ -607,7 +607,7 @@ function showQuickEdit(p) {
         'min="0" step="1" placeholder="Automático: ' + clp(auto) + '"'
       ) +
       fieldHtml(
-        'Margen objetivo %',
+        'Ganancia que quiero (%)',
         'qeMargin',
         Math.round(n(p.target_margin) * 100),
         'number',
@@ -645,11 +645,11 @@ function showQuickEdit(p) {
       (v.sale == null ? ' (automático)' : '') +
       (t.margin == null
         ? ''
-        : ' · Margen <b class="' +
+        : ' · Ganancia <b class="' +
           (t.margin < 0 ? 'down' : '') +
           '">' +
           pct(t.margin) +
-          '</b> · Utilidad / un. ' +
+          '</b> · Ganancia por unidad ' +
           clp(t.profit));
   };
   dialog.querySelectorAll('input').forEach(el => (el.oninput = preview));

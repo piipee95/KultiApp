@@ -38,7 +38,7 @@ async function test(){
  assert.equal(Math.round(f.real),50000-17000-11900);
  assert.equal(Math.round(f.ivaSales),7600);assert.equal(f.ivaPurchases,1900);assert.equal(Math.round(f.ivaDue),5700);
  assert.ok(Math.abs(f.breakEven-11900/(33000/50000))<1e-6);
- assert.match(run('q("main").textContent'),/Utilidad real\$21\.100.*IVA a pagar\$5\.700/);
+ assert.match(run('q("main").textContent'),/Ganancia real\$21\.100.*IVA a pagar\$5\.700/);
  // Partners: Felipe received 47.600; Socio paid 31.900 → total 15.700, 50/50.
  const acc=JSON.parse(run('JSON.stringify(partnerAccounts())'));
  assert.equal(acc.unassigned,10000);assert.equal(acc.total,15700);

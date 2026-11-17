@@ -379,9 +379,9 @@ function reportsView() {
             '</span>'
     ) +
     tile(
-      'Utilidad',
+      'Ganancia',
       clp(r.profit),
-      '<span class="muted">' + (r.margin == null ? 'Sin ventas' : 'Margen ' + pct(r.margin)) + '</span>'
+      '<span class="muted">' + (r.margin == null ? 'Sin ventas' : pct(r.margin) + ' de ganancia') + '</span>'
     ) +
     tile(
       'Cobrado en el mes',
@@ -401,12 +401,12 @@ function reportsView() {
         '</span>'
     ) +
     tile('Por cobrar hoy', clp(dueNow), '<span class="muted">' + receivables().length + ' con saldo</span>') +
-    '</div><section class="panel report-panel"><div class="panel-h"><h2>Últimos 6 meses</h2><span class="legend"><i class="l-sales"></i>Ventas <i class="l-profit"></i>Utilidad</span></div><div class="bars">' +
+    '</div><section class="panel report-panel"><div class="panel-h"><h2>Últimos 6 meses</h2><span class="legend"><i class="l-sales"></i>Ventas <i class="l-profit"></i>Ganancia</span></div><div class="bars">' +
     series
       .map(
         s =>
           '<div class="bar-col" title="' +
-          esc(s.label + ': ventas ' + clp(s.sales) + ', utilidad ' + clp(s.profit)) +
+          esc(s.label + ': ventas ' + clp(s.sales) + ', ganancia ' + clp(s.profit)) +
           '"><div class="bar-pair"><i class="b-sales" style="height:' +
           Math.round((s.sales / max) * 100) +
           '%"></i><i class="b-profit" style="height:' +
@@ -420,7 +420,7 @@ function reportsView() {
       .join('') +
     '</div></section><div class="home-cols"><section class="panel report-panel"><div class="panel-h"><h2>Por producto</h2></div>' +
     table(
-      ['Producto', 'Un.', 'Ventas', 'Utilidad', 'Margen'],
+      ['Producto', 'Un.', 'Ventas', 'Ganancia', '% de ganancia'],
       r.products.map(p => [
         esc(p.name),
         p.units,
@@ -471,7 +471,7 @@ function reportsView() {
       : '<p class="small muted report-empty">Sin fabricación para stock este mes.</p>') +
     '</section></div><div class="home-cols">' +
     failuresPanelMarkup(y, m) +
-    '</div><p class="footnote small muted">Ventas de pedidos de cliente creados en el mes (sin cancelados). La utilidad usa el costo real cuando está registrado y si no el estimado.</p></main>';
+    '</div><p class="footnote small muted">Ventas de pedidos de cliente creados en el mes (sin cancelados). La ganancia usa el costo real cuando está registrado y si no el estimado.</p></main>';
   common();
   q('#prevMonth').onclick = async () => {
     S.reportMonth = m === 0 ? [y - 1, 11] : [y, m - 1];
@@ -510,19 +510,19 @@ async function exportReport(y, m) {
         ['Mes', label],
         ['Ventas (con IVA)', Math.round(r.total)],
         ['Ventas netas', Math.round(r.net)],
-        ['Utilidad', Math.round(r.profit)],
-        ['Margen', r.margin == null ? '' : pct(r.margin)],
+        ['Ganancia', Math.round(r.profit)],
+        ['% de ganancia', r.margin == null ? '' : pct(r.margin)],
         ['Pedidos', r.sales.length],
         ['Ticket promedio', Math.round(r.ticket)],
         ['Cobrado en el mes', Math.round(r.collected)],
         ['Cotizaciones', r.quotes.length],
         ['Cotizaciones aceptadas', r.accepted],
         ['Unidades fabricadas para stock', r.madeUnits],
-        ['Costo de lo vendido', Math.round(fin.cogs)],
+        ['Lo que costó fabricar lo vendido', Math.round(fin.cogs)],
         ['Gastos del negocio', Math.round(fin.overhead)],
         ['Fallas de impresión (cantidad)', failuresOfMonth(y, m).count],
         ['Costo de fallas', Math.round(failuresOfMonth(y, m).cost)],
-        ['Utilidad real', Math.round(fin.real)],
+        ['Ganancia real', Math.round(fin.real)],
         ['IVA de ventas', Math.round(fin.ivaSales)],
         ['IVA de compras con factura', Math.round(fin.ivaPurchases)],
         ['IVA estimado a pagar', Math.round(fin.ivaDue)]
@@ -541,7 +541,7 @@ async function exportReport(y, m) {
           'Total',
           'Costo estimado',
           'Costo real',
-          'Utilidad',
+          'Ganancia',
           'Pagado',
           'Saldo',
           'Estado',
@@ -572,7 +572,7 @@ async function exportReport(y, m) {
     {
       name: 'Por producto',
       rows: [
-        ['Producto', 'Pedidos', 'Unidades', 'Ventas', 'Utilidad', 'Margen'],
+        ['Producto', 'Pedidos', 'Unidades', 'Ventas', 'Ganancia', '% de ganancia'],
         ...r.products.map(p => [
           p.name,
           p.orders,
@@ -946,27 +946,29 @@ function financeView() {
     (isCurrent ? ' disabled' : '') +
     '>' +
     icon('arrow-left') +
-    '</button></div><div class="home-cols"><section class="panel report-panel"><div class="panel-h"><h2>Utilidad real del mes</h2></div><div class="fin-lines">' +
+    '</button></div><div class="home-cols"><section class="panel report-panel"><div class="panel-h"><h2>Lo que ganaste de verdad este mes</h2></div><div class="fin-lines">' +
     line('Ventas netas (sin IVA)', clp(f.report.net)) +
-    line('− Costo de lo vendido', clp(f.cogs)) +
+    line('− Lo que costó fabricar lo vendido', clp(f.cogs)) +
     line(
-      '= Margen bruto',
+      '= Ganancia antes de gastos',
       clp(f.gross) + (f.grossMargin == null ? '' : ' · ' + pct(f.grossMargin)),
       'sub-total'
     ) +
     line('− Gastos del negocio', clp(f.overhead)) +
     (f.waste ? line('− Fallas de impresión', clp(f.waste)) : '') +
-    line('= Utilidad real', clp(f.real), 'total ' + (f.real < 0 ? 'down' : 'up')) +
+    line('= Ganancia real', clp(f.real), 'total ' + (f.real < 0 ? 'down' : 'up')) +
     '</div><p class="small muted fin-note">' +
     (f.breakEven == null
-      ? 'Registra ventas y gastos para calcular el punto de equilibrio.'
+      ? 'Registra ventas y gastos para saber cuánto debes vender para cubrir tus gastos.'
       : 'Para cubrir los gastos del mes necesitas vender <b>' +
         clp(f.breakEven) +
         '</b> netos (' +
         clp(f.breakEven * (1 + IVA_RATE)) +
-        ' con IVA) con el margen actual.') +
+        ' con IVA) con tu % de ganancia actual.') +
     (f.purchases
-      ? ' Compras de materiales del mes: ' + clp(f.purchases) + ' (se reflejan en el costo de lo vendido).'
+      ? ' Compras de materiales del mes: ' +
+        clp(f.purchases) +
+        ' (ya están en lo que costó fabricar lo vendido).'
       : '') +
     '</p></section><section class="panel report-panel"><div class="panel-h"><h2>IVA del mes (estimado)</h2></div><div class="fin-lines">' +
     line('IVA de ventas (débito)', clp(f.ivaSales)) +
@@ -1235,7 +1237,7 @@ function showExpense(e) {
     if (
       !(await confirmDialog({
         title: 'Eliminar gasto',
-        body: 'Se quitará de la utilidad, el IVA y las cuentas entre socios.',
+        body: 'Se quitará de la ganancia, el IVA y las cuentas entre socios.',
         confirmLabel: 'Eliminar',
         danger: true
       }))
@@ -1416,7 +1418,7 @@ function valuationPanel() {
     clp(v.invested) +
     '</b><small>Materias primas + fabricados</small></div></div><div class="fin-lines">' +
     line('Si vendes lo fabricado (precio de venta)', clp(v.goodsSale)) +
-    line('Utilidad proyectada de lo fabricado', clp(v.goodsProfit), v.goodsProfit < 0 ? 'down' : 'up') +
+    line('Ganancia al vender lo fabricado', clp(v.goodsProfit), v.goodsProfit < 0 ? 'down' : 'up') +
     line('Por cobrar de pedidos', clp(v.due)) +
     line('= Ingreso proyectado', clp(v.expected), 'total up') +
     '</div>' +

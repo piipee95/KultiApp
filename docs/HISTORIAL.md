@@ -1,3 +1,7 @@
+# V5.5.3 — Palabras más simples
+
+«Utilidad» y «margen» pasan a «ganancia» y «% de ganancia» en toda la app (sin cambiar los cálculos). Ver `versiones/V5_5_3.md`.
+
 # V5.5.2 — Contorno 3D en el menú
 
 Acceso en Configuración a la herramienta de contorno 3D para textos (.3mf). Corrige un fallo de triangulación con Great Vibes. Sin cambios en la base de datos. Ver `versiones/V5_5_2.md`.

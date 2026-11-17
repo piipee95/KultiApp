@@ -818,7 +818,7 @@ function showSavedQuote(qt) {
       (state === 'expired' ? 'down' : '') +
       '">' +
       until.toLocaleDateString('es-CL') +
-      '</dd></div><div><dt>Utilidad estimada</dt><dd class="' +
+      '</dd></div><div><dt>Ganancia estimada</dt><dd class="' +
       (s.profit < 0 ? 'down' : 'up') +
       '">' +
       (s.cost > 0 ? clp(s.profit) + (s.margin == null ? '' : ' · ' + pct(s.margin)) : '—') +

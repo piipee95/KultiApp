@@ -283,7 +283,7 @@ function orderSheet(order) {
           clp(t.sales) +
           '</dd></div><div><dt>Costo estimado</dt><dd>' +
           clp(order.estimated_cost) +
-          '</dd></div><div><dt>Utilidad estimada</dt><dd class="' +
+          '</dd></div><div><dt>Ganancia estimada</dt><dd class="' +
           (t.estimatedProfit < 0 ? 'down' : 'up') +
           '">' +
           clp(t.estimatedProfit) +
@@ -401,12 +401,12 @@ function orderSheet(order) {
     const result = orderNumbers({ ...order, ...getActual() });
     q('#actualResult').textContent =
       result.actualCost == null
-        ? 'Completa el costo real base para calcular la utilidad.'
+        ? 'Anota el costo real para saber cuánto ganaste.'
         : 'Costo real total: ' +
           clp(result.actualCost) +
-          ' · Desviación de costo: ' +
+          ' · Diferencia con el costo estimado: ' +
           clp(result.variance) +
-          ' · Utilidad real: ' +
+          ' · Ganancia real: ' +
           clp(result.actualProfit);
   };
   refreshActual();
@@ -551,7 +551,7 @@ function showCreateMenu() {
           'product',
           'package',
           'Producto',
-          'Costeo completo para el catálogo: impresiones, materiales y margen.'
+          'Costeo completo para el catálogo: impresiones, materiales y ganancia.'
         ]
       ]
         .map(
@@ -1078,7 +1078,7 @@ function productionView() {
     filterPills(pills, filter, 'data-order-filter') +
     '<section class="panel">' +
     (list.length
-      ? '<table class="data-table"><thead><tr><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th class="r">Venta</th><th class="r">Utilidad</th></tr></thead><tbody>' +
+      ? '<table class="data-table"><thead><tr><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th class="r">Venta</th><th class="r">Ganancia</th></tr></thead><tbody>' +
         list
           .map(
             o =>

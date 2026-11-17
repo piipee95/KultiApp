@@ -227,11 +227,11 @@ function scenario(name, m) {
   return (
     '<div class="scenario"><h4>' +
     name +
-    '</h4><div class="small muted">Margen ' +
+    '</h4><div class="small muted">Ganancia ' +
     pct(m) +
     '</div><div class="price">' +
     clp(t.rounded) +
-    '</div><div class="small">Utilidad / un. ' +
+    '</div><div class="small">Ganancia por unidad ' +
     clp(t.utilityUnit) +
     '</div></div>'
   );
@@ -263,7 +263,7 @@ function product() {
     esc(p.name) +
     '"></div><div class="field"><label>Cantidad</label><input id="qty" type="number" value="' +
     p.quantity +
-    '"></div><div class="field"><label>Margen objetivo %</label><input id="margin" class="live" type="number" value="' +
+    '"></div><div class="field"><label>Ganancia que quiero (%)</label><input id="margin" class="live" type="number" value="' +
     Math.round(p.target_margin * 100) +
     '"></div><div class="field"><label>Redondeo CLP</label><input id="round" class="live" type="number" value="' +
     p.round_to +
@@ -301,11 +301,11 @@ function product() {
     clp(t.finalIva) +
     '</div></div><div class="metric gold"><div class="label">Precio final / unidad</div><div class="value" id="m7">' +
     clp(t.rounded) +
-    '</div></div><div class="metric good"><div class="label">Utilidad lote</div><div class="value" id="m8">' +
+    '</div></div><div class="metric good"><div class="label">Ganancia del lote</div><div class="value" id="m8">' +
     clp(t.utility) +
     '</div><div class="small" id="m11">' +
     clp(t.utilityUnit) +
-    ' por unidad</div><div class="small" id="m9">Margen efectivo ' +
+    ' por unidad</div><div class="small" id="m9">Ganancia con este precio ' +
     pct(t.em) +
     '</div></div></div><div class="divider"></div><div class="grid grid-4" id="sc">' +
     scenarios(p.target_margin) +
@@ -441,7 +441,7 @@ function refresh() {
   set('#m7', clp(t.rounded));
   set('#m8', clp(t.utility));
   set('#m11', clp(t.utilityUnit) + ' por unidad');
-  set('#m9', 'Margen efectivo ' + pct(t.em));
+  set('#m9', 'Ganancia con este precio ' + pct(t.em));
   q('#quickPrice').textContent = clp(t.rounded);
   q('#quickCost').textContent = clp(t.unit);
   updatePriceHero();
@@ -1108,9 +1108,9 @@ function updatePriceStatus() {
   el.textContent =
     'Automático: ' +
     clp(t.suggested) +
-    ' · Margen con precio final: ' +
+    ' · Ganancia con el precio final: ' +
     (t.rounded > 0 ? pct(t.em) : 'No aplica') +
-    ' · Utilidad / un.: ' +
+    ' · Ganancia por unidad: ' +
     clp(t.utilityUnit) +
     (t.utilityUnit < 0 ? ' · Este precio genera pérdida.' : '');
 }
@@ -1290,7 +1290,7 @@ function setupEditorLayout() {
     const heading = document.createElement('div');
     heading.className = 'full-field form-heading';
     heading.innerHTML =
-      '<h3>Precio y margen</h3><span class="small muted">Define cómo se calcula el precio de venta.</span>';
+      '<h3>Precio y ganancia</h3><span class="small muted">Define cómo se calcula el precio de venta.</span>';
     desc.after(heading);
     // "Aplicar IVA" becomes a switch inside the IVA % field.
     const iva = q('#iva'),
@@ -1357,11 +1357,11 @@ function updatePriceHero() {
     (S.product.iva_enabled ? ' · IVA incluido' : '') +
     '</small></div><div class="ph-stats"><div><span>Costo / un.</span><b class="num">' +
     clp(t.unit) +
-    '</b></div><div><span>Utilidad / un.</span><b class="num ' +
+    '</b></div><div><span>Ganancia por unidad</span><b class="num ' +
     (t.utilityUnit < 0 ? 'down' : 'up') +
     '">' +
     clp(t.utilityUnit) +
-    '</b></div><div><span>Margen</span><b class="num ' +
+    '</b></div><div><span>% de ganancia</span><b class="num ' +
     (margin != null && margin < 0 ? 'down' : '') +
     '">' +
     (margin == null ? '—' : pct(margin)) +
