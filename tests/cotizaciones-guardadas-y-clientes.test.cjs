@@ -95,9 +95,7 @@ async function test() {
   // The open screen is remembered for the next load.
   run(`S.mode='customers';render()`);
   assert.equal(run('JSON.parse(localStorage.getItem(viewKey())).mode'), 'customers');
-  run(
-    `history.replaceState(null,'',location.pathname);S.mode='home';window.restored=null;restoreView().then(v=>window.restored=v)`
-  );
+  run(`history.replaceState(null,'',location.pathname);S.mode='home';window.restored=null;restoreView().then(v=>window.restored=v)`);
   await flush(6);
   assert.equal(run('window.restored'), true);
   assert.equal(run('S.mode'), 'customers');
