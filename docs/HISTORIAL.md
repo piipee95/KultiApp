@@ -18,6 +18,10 @@ Galería con vista previa, campana de pendientes existentes y acceso superior de
 
 Resumen de cada versión, de la más reciente a la más antigua. El detalle completo de cada una está en `docs/versiones/`.
 
+## 5.5.1 · Anotar gastos y pagos desde el Inicio
+
+- «Mi plata» tiene los botones **Me pagaron** y **Anotar un gasto**, y un aviso de qué cuenta «Me queda».
+
 ## 5.5 · Centro de operaciones
 
 - Inicio con periodo (hoy, semana, mes, año, rango), ventas, cobros, costo y utilidad por separado con variación,

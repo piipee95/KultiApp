@@ -141,7 +141,15 @@ function moneyView() {
     '"><span>Me queda <small>(lo que me pagaron menos lo que gasté)</small></span><b class="num">' +
     (left < 0 ? '-' : '') +
     clp(Math.abs(left)) +
-    '</b></div></section>' +
+    '</b></div>' +
+    (canEdit()
+      ? '<div class="money-actions"><button type="button" class="btn btn-secondary" data-money-paid>' +
+        icon('wallet') +
+        'Me pagaron</button><button type="button" class="btn btn-secondary" data-money-expense>' +
+        icon('plus') +
+        'Anotar un gasto</button></div>'
+      : '') +
+    '<p class="small muted money-hint">«Me queda» solo cuenta lo que anotas: si compras filamento o pagas algo, anótalo con «Anotar un gasto».</p></section>' +
     cuotaCard(cur.collected, range)
   );
 }
@@ -178,7 +186,75 @@ function showCuota() {
     render();
   });
 }
+// Quick payment: pick the order that still owes money, confirm the amount and save it.
+function showQuickPayment() {
+  if (!canEdit()) return;
+  const owing = receivables()
+    .filter(o => o.status !== 'canceled')
+    .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+  if (!owing.length) return toast('No te deben nada: todo está cobrado.');
+  const dialog = showDialog(
+    'quickPayDialog',
+    '<div class="section-title"><h2>Me pagaron</h2><button class="btn btn-ghost" data-close>Cerrar</button></div><form id="quickPayForm" class="grid"><div class="field"><label for="qpOrder">¿De qué pedido?</label><select id="qpOrder">' +
+      owing
+        .map(
+          o =>
+            '<option value="' +
+            o.id +
+            '">PED-' +
+            o.order_no +
+            ' · ' +
+            esc(o.title) +
+            (o.customer_name ? ' · ' + esc(o.customer_name) : '') +
+            ' · debe ' +
+            clp(orderBalance(o).due) +
+            '</option>'
+        )
+        .join('') +
+      '</select></div>' +
+      fieldHtml(
+        'Monto recibido',
+        'qpAmount',
+        orderBalance(owing[0]).due,
+        'number',
+        'min="1" step="1" required inputmode="numeric"'
+      ) +
+      '<div class="grid grid-2"><div class="field"><label for="qpMethod">Medio</label><select id="qpMethod">' +
+      Object.entries(PAY_METHODS)
+        .map(([k, v]) => '<option value="' + k + '">' + v + '</option>')
+        .join('') +
+      '</select></div>' +
+      fieldHtml('Fecha', 'qpDate', localToday(), 'date', 'required') +
+      '</div><div id="qpFeedback" class="small" role="status"></div><div class="dialog-actions"><button class="btn btn-primary" type="submit">Guardar pago</button></div></form>'
+  );
+  const picked = () => owing.find(o => o.id === q('#qpOrder').value);
+  q('#qpOrder').onchange = () => (q('#qpAmount').value = orderBalance(picked()).due);
+  q('#quickPayForm').onsubmit = async e => {
+    e.preventDefault();
+    const order = picked(),
+      due = orderBalance(order).due,
+      amount = Math.round(n(q('#qpAmount').value)),
+      btn = e.submitter || q('#quickPayForm button[type=submit]');
+    if (amount < 1) return;
+    if (amount > due) return (q('#qpFeedback').textContent = 'Ese pedido solo debe ' + clp(due) + '.');
+    btn.disabled = true;
+    try {
+      await addPayment(order, amount, q('#qpMethod').value, q('#qpDate').value);
+      toast('Pago registrado.');
+      dialog.close();
+      if (S.mode === 'home') render();
+    } catch (error) {
+      q('#qpFeedback').textContent = error.message;
+      btn.disabled = false;
+    }
+  };
+  enhanceFields();
+}
 function bindMoney() {
+  qa('[data-money-paid]').forEach(b => (b.onclick = showQuickPayment));
+  qa('[data-money-expense]').forEach(
+    b => (b.onclick = () => showExpense({})?.addEventListener('close', () => S.mode === 'home' && render()))
+  );
   qa('[data-cuota-edit]').forEach(b => (b.onclick = showCuota));
   qa('[data-cuota-paid]').forEach(
     b =>

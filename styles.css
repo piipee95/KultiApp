@@ -7232,3 +7232,18 @@ button.sheet-user > svg {
     border-top: 1px solid var(--line);
   }
 }
+
+.money-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.money-hint {
+  margin: 10px 0 0;
+}
+@media (max-width: 599px) {
+  .money-actions .btn {
+    flex: 1 1 100%;
+  }
+}
